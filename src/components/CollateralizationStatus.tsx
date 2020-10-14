@@ -30,18 +30,9 @@ export function CollaterizationStatusWithPrice(props: {
     return <span>-</span>;
   }
 
-  // Given with 18 decimal places
-  const btcPerEth = props.price.val;
-  const satPerWei = btcPerEth * 100000000 * 0.000000000000000001;
-  const weiPerSat = 1 / satPerWei;
-
-  const bondValueWei = parseInt(deposit.bondedECDSAKeep.totalBondAmount);
-  const lotValueSatoshis = parseInt(deposit.lotSizeSatoshis);
-  const lotValueWei = lotValueSatoshis * weiPerSat;
-
-  const ratio = bondValueWei / lotValueWei;
-
+  const ratio = getCollaterizationRatio(deposit, props.price);
   const ratioPercent = ratio * 100;
+  
   let status = 'normal';
   if (ratioPercent < deposit.undercollateralizedThresholdPercent) {
     status = 'courtesy'
@@ -66,4 +57,19 @@ export function CollaterizationStatusWithPrice(props: {
       ...extraStyle,
     ...props.style
   }}>{formatter.format(ratio)}</span>
+}
+
+export function getCollaterizationRatio(deposit: any, price: any) {
+  // Given with 18 decimal places
+  const btcPerEth = price.val;
+  const satPerWei = btcPerEth * 100000000 * 0.000000000000000001;
+  const weiPerSat = 1 / satPerWei;
+
+  const bondValueWei = parseInt(deposit.bondedECDSAKeep.totalBondAmount);
+  const lotValueSatoshis = parseInt(deposit.lotSizeSatoshis);
+  const lotValueWei = lotValueSatoshis * weiPerSat;
+
+  const ratio = bondValueWei / lotValueWei;
+
+  return ratio;
 }

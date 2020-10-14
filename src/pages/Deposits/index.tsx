@@ -13,7 +13,7 @@ import {Link} from "react-router-dom";
 
 
 // See: https://github.com/jfangrad/react-dropdown-aria/blob/68e730d1ba8894ded9ee6cfb665c7aabf985d1dc/packages/react-dropdown-aria/styles/index.ts
-const style: DropdownStyle = {
+export const style: DropdownStyle = {
   DropdownButton: base => ({
     ...base,
     border: 'none',
