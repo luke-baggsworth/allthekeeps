@@ -21,7 +21,6 @@ import {Users} from "./pages/Users";
 import {Beacon} from "./pages/Beacon";
 import {BeaconGroup} from "./pages/Group";
 
-
 function makeApolloLink(uri: string) {
   const httpLink = new HttpLink({
     uri: 'https://' + uri
