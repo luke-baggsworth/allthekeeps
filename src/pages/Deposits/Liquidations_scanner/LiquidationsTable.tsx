@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { CollaterizationStatusWithPrice } from "../../components/CollateralizationStatus";
-import { InfoTooltip } from "../../components/InfoTooltip";
-import { TimeToNow } from "../../components/FormattedTime";
-import { Table } from "../../components/Table";
-import { Address } from "../../components/Address";
-import { getWeiAsEth } from "../../utils/getWeiAsEth";
-import { getSatoshisAsBitcoin } from "../../utils/getSatoshisAsBitcoin";
+import { CollaterizationStatusWithPrice } from "../../../components/CollateralizationStatus";
+import { InfoTooltip } from "../../../components/InfoTooltip";
+import { TimeToNow } from "../../../components/FormattedTime";
+import { Table } from "../../../components/Table";
+import { Address } from "../../../components/Address";
+import { getWeiAsEth } from "../../../utils/getWeiAsEth";
+import { getSatoshisAsBitcoin } from "../../../utils/getSatoshisAsBitcoin";
 
 const formatter = new Intl.NumberFormat("en-US", {
   style: 'percent',

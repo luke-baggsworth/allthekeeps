@@ -10,6 +10,7 @@ import {useParams} from "react-router";
 import Tippy from "@tippyjs/react";
 import {Link} from "react-router-dom";
 import {useDepositQuery, Views} from "./Views";
+import { Liquidations } from './Liquidations_scanner';
 
 
 // See: https://github.com/jfangrad/react-dropdown-aria/blob/68e730d1ba8894ded9ee6cfb665c7aabf985d1dc/packages/react-dropdown-aria/styles/index.ts
@@ -168,9 +169,11 @@ export function Deposits() {
     </div>
 
     <Paper padding>
+      {currentView.id === 'liquidations_scanner' ? 
+      <Liquidations /> : 
       <DepositsTable
           query={depositQuery}
-      />
+      />}
     </Paper>
   </div>
 }

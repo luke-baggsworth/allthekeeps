@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import Dropdown from "react-dropdown-aria";
-import { Helmet } from "react-helmet";
 import { gql, useQuery } from "@apollo/client";
 import { css } from "emotion";
-import { style } from './../Deposits/index';
+import { style } from './../index';
 import { LiquidationsTable } from './LiquidationsTable';
-import { Paper } from "../../design-system/Paper";
-import { usePriceFeed } from "./../../components/PriceFeed";
-import { getCollaterizationRatio } from "./../../components/CollateralizationStatus";
+import { Paper } from "../../../design-system/Paper";
+import { usePriceFeed } from "./../../../components/PriceFeed";
+import { getCollaterizationRatio } from "./../../../components/CollateralizationStatus";
 
 const DEPOSITS_QUERY = gql`
     query GetDeposits {
@@ -65,13 +64,6 @@ export function Liquidations() {
 
   return (
     <div style={{padding: '20px'}}>
-      <Helmet>
-        <title>Liquidations</title>
-      </Helmet>
-
-      <div style={{marginBottom: '20px', display: 'flex', alignItems: 'center'}}>
-        <h1 style={{marginTop: 0, marginBottom: '0px'}}>Liquidations</h1>
-      </div>
 
       <div className={detailsContainerStyle}>
         <div>

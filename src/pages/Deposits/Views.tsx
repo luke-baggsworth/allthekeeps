@@ -10,7 +10,8 @@ export type DepositViewID =
     | 'unminted'
     | 'operations'
     | 'redemptions'
-    | 'notifiable';
+    | 'notifiable'
+    | 'liquidations_scanner';
 
 
 export const Views: {
@@ -63,6 +64,12 @@ export const Views: {
     id: "notifiable",
     label: "Notifiable Deposits",
     description: "Deposits whose current state has timed out and can be notified."
+  },
+
+  {
+    id: "liquidations_scanner",
+    label: "Liquidations Scanner",
+    description: ""
   },
 ]
 

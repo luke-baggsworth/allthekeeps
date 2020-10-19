@@ -20,8 +20,6 @@ import {Network, SetNetwork, useIsRopsten} from "./NetworkContext";
 import {Users} from "./pages/Users";
 import {Beacon} from "./pages/Beacon";
 import {BeaconGroup} from "./pages/Group";
-import {Liquidations} from "./pages/Liquidations";
-
 
 function makeApolloLink(uri: string) {
   const httpLink = new HttpLink({
@@ -82,10 +80,7 @@ function AppInternal() {
             `}>
               <Switch>
                 <Route path="/" exact>
-                  <Redirect to="/liquidations" />
-                </Route>
-                <Route exact path="/liquidations">
-                  <Liquidations />
+                  <Redirect to="/deposits" />
                 </Route>
                 <Route exact path="/deposits">
                   <Deposits />
@@ -149,10 +144,6 @@ function Header() {
     <strong style={{padding: '10px 20px 10px 0'}}>
       <img src={"/logo.png"} height={40} alt={"AllTheKeeps Logo"} />
     </strong>
-
-    <NavigationButton to={"/liquidations"}>
-      <span style={{ color: 'red', fontWeight: 'bold' }}>Liquidations</span>
-    </NavigationButton>
     
     <NavigationButton to={"/deposits"}>
       Deposits
