@@ -6,6 +6,8 @@ import BitcoinHelpers from "../../utils/BitcoinHelpers";
 import {useQuery} from "@apollo/client";
 import { gql } from '@apollo/client';
 import {GetDepositLogsQuery} from "../../generated/graphql";
+import { useTranslation } from 'react-i18next';
+import i18n from './../../i18n';
 
 export function Log(props: {
   depositId: string
@@ -41,9 +43,10 @@ export function Log(props: {
           }
       }
   `, {variables: {depositId: props.depositId}});
+  const { t } = useTranslation();
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :( {"" + error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error) return <p>{t('error')} :( {"" + error}</p>;
 
   return <>
     {data!.events.map((logEntry: any) => {
@@ -93,14 +96,16 @@ function LogTitle(props: {
 function UnknownEvent(props: {
   event: any
 }) {
-  return <div>Unknown Event: {props.event.__typename}</div>
+  const { t } = useTranslation();
+  return <div>{t('deposit$.log$.unknown_event')}: {props.event.__typename}</div>
 }
 
 function CreatedEvent(props: {
   event: any
 }) {
+  const { t } = useTranslation();
   return <div>
-    <LogTitle>Deposit created</LogTitle>
+    <LogTitle>{t('deposit$.log$.deposit_created')}</LogTitle>
   </div>
 }
 
@@ -109,21 +114,22 @@ function RegisteredPubKeyEvent(props: {
 }) {
   // Triggered when retrieveSignerPubkey() is called
   // TODO: Can we get this earlier?
-
+  const { t } = useTranslation();
   const event = props.event;
   const address = BitcoinHelpers.Address.publicKeyPointToP2WPKHAddress(event.signingGroupPubkeyX, event.signingGroupPubkeyY, "main");
 
   return <div>
-    <LogTitle>Bitcoin address provided</LogTitle>
-    <div>Signers have provided a Bitcoin address to receive the funds: <BitcoinAddress address={address}/></div>
+    <LogTitle>{t('deposit$.log$.address_provided')}</LogTitle>
+    <div>{t('deposit$.log$.address_provided_info')}: <BitcoinAddress address={address}/></div>
   </div>
 }
 
 function FundedEvent(props: {
   event: any
 }) {
+  const { t } = useTranslation();
   return <div>
-    <LogTitle>Funded</LogTitle>
+    <LogTitle>{t('deposit$.log$.funded')}</LogTitle>
   </div>
 }
 
@@ -131,8 +137,9 @@ function FundedEvent(props: {
 function RedemptionRequestedEvent(props: {
   event: any
 }) {
+  const { t } = useTranslation();
   return <div>
-    <LogTitle>Redemption Requested</LogTitle>
+    <LogTitle>{t('deposit$.log$.redemption_requested')}</LogTitle>
     <div>
 
     </div>
@@ -140,11 +147,12 @@ function RedemptionRequestedEvent(props: {
 }
 
 export function getLiquidationCauseAsString(cause: string) {
+  const t = i18n.t.bind(i18n)
   return ({
-    'FRAUD': 'Signer Fraud',
-    'PROOF_TIMEOUT': 'Signer Timeout',
-    'SIGNATURE_TIMEOUT': 'Signer Timeout',
-    'UNDERCOLLATERIZED': 'Undercollaterialized'
+    'FRAUD': t('deposit$.log$.singer_fraud'),
+    'PROOF_TIMEOUT': t('deposit$.log$.singer_timeout'),
+    'SIGNATURE_TIMEOUT': t('deposit$.log$.singer_timeout'),
+    'UNDERCOLLATERIZED': t('deposit$.log$.undercollaterialized')
   } as any)[cause] || cause;
 }
 
@@ -153,16 +161,17 @@ function StartedLiquidationEvent(props: {
 }) {
   const {cause} = props.event;
   const title: string = getLiquidationCauseAsString(cause);
+  const { t } = useTranslation();
 
   const description: string = ({
-    'FRAUD': 'One of the signers submitted a fraudulent signature.',
-    'PROOF_TIMEOUT': 'The signing group failed to submit proof that their transaction, releasing the deposited Bitcoin, was included in the blockchain.',
-    'SIGNATURE_TIMEOUT': 'The signing group failed to provide a signature for a transaction releasing the Bitcoin.',
-    'UNDERCOLLATERIZED': 'The deposit became undercollateralized due to the value of the backing ETH bond falling.'
+    'FRAUD': t('deposit$.log$.desc_fraud'),
+    'PROOF_TIMEOUT': t('deposit$.log$.desc_proof_timeout'),
+    'SIGNATURE_TIMEOUT': t('deposit$.log$.desc_sign_timeout'),
+    'UNDERCOLLATERIZED': t('deposit$.log$.desc_undercollateralized')
   } as any)[cause];
 
   return <div>
-    <LogTitle>Liquidation Started: {title}</LogTitle>
+    <LogTitle>{t('deposit$.log$.liquidation_started')}: {title}</LogTitle>
     <div>
       {description}
     </div>
@@ -172,21 +181,22 @@ function StartedLiquidationEvent(props: {
 function LiquidatedEvent(props: {
   event: any
 }) {
+  const { t } = useTranslation();
   return <div>
-    <LogTitle>Liquidated</LogTitle>
+    <LogTitle>{t('deposit$.log$.liquidated')}</LogTitle>
   </div>
 }
 
 function SetupFailedEvent(props: {
   event: any
 }) {
+  const { t } = useTranslation();
   let content: any;
   if (props.event.reason == 'FUNDING_TIMEOUT' || props.event.reason == 'SIGNER_SETUP_FAILED_DEPOSITOR') {
     content = <>
-      <LogTitle>Failed: Not funded</LogTitle>
+      <LogTitle>{t('deposit$.log$.not_funded')}</LogTitle>
       <div>
-        The depositor did not send the required amount of Bitcoin to the deposit address,
-        and the deposit has now timed out.
+        {t('deposit$.log$.not_funded_info')}
       </div>
       {/*<div style={{color: 'gray', fontSize: '0.9em'}}>*/}
       {/*  The depositor has 3 hours to send the desired amount of Bitcoins to the address provided by the signers.*/}
@@ -200,10 +210,9 @@ function SetupFailedEvent(props: {
     const badSigners: string[] = allSigners.filter((s: any) => !goodSigners.has(s));
 
     content = <>
-      <LogTitle>Failed: Signer Setup</LogTitle>
+      <LogTitle>{t('deposit$.log$.failed_singer_setup')}</LogTitle>
       <div>
-        The signers failed to coordinate to provide a Bitcoin deposit address. Specifically, nothing was
-        submitted by the following signer(s): {badSigners.map(address => <Address to={`/operator/${address}`} address={address} />).reduce((prev, curr) => [prev, ', ', curr] as any, "")}
+        {t('deposit$.log$.failed_singer_setup_info')}: {badSigners.map(address => <Address to={`/operator/${address}`} address={address} />).reduce((prev, curr) => [prev, ', ', curr] as any, "")}
       </div>
       {/*<div style={{color: 'gray', fontSize: '0.9em'}}>*/}
       {/*  The depositor has 3 hours to send the desired amount of Bitcoins to the address provided by the signers.*/}
@@ -213,9 +222,9 @@ function SetupFailedEvent(props: {
   }
   else {
     content = <>
-      <LogTitle>Setup Failed</LogTitle>
+      <LogTitle>{t('deposit$.log$.failed_setup')}</LogTitle>
       <div>
-        Reason: {props.event.reason}
+        {t('deposit$.log$.reason')}: {props.event.reason}
       </div>
     </>
   }
@@ -229,12 +238,13 @@ function GotRedemptionSignatureEvent(props: {
 }) {
   // Signers call provideRedemptionSignature(). They provide a signature over a pay-out transaction that would
   // release the funds.
+  const { t } = useTranslation();
   return <div>
     <LogTitle>
-      Signers provided a redemption signature
+      {t('deposit$.log$.singer_sign')}
     </LogTitle>
     <div>
-      The signers provided a signature for the redemption Bitcoin transaction.
+      {t('deposit$.log$.singer_sign_info')}
     </div>
   </div>
 }
@@ -243,7 +253,8 @@ function RedeemedEvent(props: {
   event: any
 }) {
   // # Triggered when provideRedemptionProof() is called - confirmations
+  const { t } = useTranslation();
   return <div>
-    <LogTitle>Redeemed</LogTitle>
+    <LogTitle>{t('deposit$.log$.redeemed')}</LogTitle>
   </div>
 }

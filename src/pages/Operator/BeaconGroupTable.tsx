@@ -6,27 +6,29 @@ import {ETHTag} from "../../components/CurrencyTags";
 import {ETHValue} from "../../components/ETHValue";
 import {TimeToNow} from "../../components/FormattedTime";
 import React from "react";
+import { useTranslation } from 'react-i18next';
 
 export function BeaconGroupsTable(props: {
   memberships: any,
 }) {
   const {memberships} = props;
+  const { t } = useTranslation();
 
   return <Table
       style={{width: '100%'}}>
     <thead>
     <tr>
       <th>
-        Group
+        {t('operator$.beacon_table.group')}
       </th>
       <th>
-        Weight <InfoTooltip>An operator can fill multiple membership slots in a group, and will then earn a multiple of rewards.</InfoTooltip>
+        {t('operator$.beacon_table.weight')} <InfoTooltip>{t('operator$.beacon_table.weight_tooltip')}</InfoTooltip>
       </th>
       <th>
-        ETH Earned <InfoTooltip>ETH earned by the operator through membership in the group.</InfoTooltip>
+        {t('operator$.beacon_table.eth_earned')} <InfoTooltip>{t('operator$.beacon_table.eth_earned_tooltip')}</InfoTooltip>
       </th>
       <th>
-        Created At
+        {t('operator$.beacon_table.created')}
       </th>
     </tr>
     </thead>

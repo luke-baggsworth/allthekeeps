@@ -52,27 +52,27 @@ export function getNiceStateLabel(deposit: NiceStateLabelFragment) {
   const failedSetupReason = depositSetup?.failureReason || "";
 
   if (state == 'AWAITING_SIGNER_SETUP' && deposit.bondedECDSAKeep?.publicKey) {
-    return "Awaiting Funding";
+    return "$$utils.state_label.awaiting_funding";
   }
 
   if (state == 'FAILED_SETUP' && failedSetupReason) {
     return ({
-      'FUNDING_TIMEOUT': 'Funding Timeout',
-      'SIGNER_SETUP_FAILED_DEPOSITOR': 'Funding Timeout',
-      'SIGNER_SETUP_FAILED': 'Signer Setup Failed',
-    } as any)[failedSetupReason] || "Setup Failed";
+      'FUNDING_TIMEOUT': '$$utils.state_label.funding_timeout',
+      'SIGNER_SETUP_FAILED_DEPOSITOR': '$$utils.state_label.funding_timeout',
+      'SIGNER_SETUP_FAILED': '$$utils.state_label.signer_setup_failed',
+    } as any)[failedSetupReason] || "$$utils.state_label.setup_failed";
   }
 
   return ({
-    'AWAITING_SIGNER_SETUP': "Awaiting Signer Setup",
-    'AWAITING_BTC_FUNDING_PROOF': "Awaiting Funding Proof",
-    'AWAITING_WITHDRAWAL_SIGNATURE': 'Awaiting Withdrawal Signature',
-    'AWAITING_WITHDRAWAL_PROOF': 'Awaiting Withdrawal Proof',
-    'REDEEMED': 'Redeemed',
-    'ACTIVE': "Active",
-    'FAILED_SETUP': "Setup Failed",
-    "LIQUIDATED": "Liquidated",
-    "LIQUIDATION_IN_PROGRESS": "Liquidation In Progress"
+    'AWAITING_SIGNER_SETUP': "$$utils.state_label.awaiting_signer_setup",
+    'AWAITING_BTC_FUNDING_PROOF': "$$utils.state_label.awaiting_funding_proof",
+    'AWAITING_WITHDRAWAL_SIGNATURE': '$$utils.state_label.awaiting_withdrawal_signature',
+    'AWAITING_WITHDRAWAL_PROOF': '$$utils.state_label.awaiting_withdrawal_proof',
+    'REDEEMED': '$$utils.state_label.redeemed',
+    'ACTIVE': "$$utils.state_label.active",
+    'FAILED_SETUP': "$$utils.state_label.setup_failed",
+    "LIQUIDATED": "$$utils.state_label.liquidated",
+    "LIQUIDATION_IN_PROGRESS": "$$utils.state_label.liquidation_in_progress"
   } as any)[state || ""] || state;
 }
 
@@ -106,9 +106,9 @@ export function getStateBoxStyle(state: string) {
 
 export function getStateTooltip(state: string) {
   const text = ({
-    'REDEEMED': "The original BTC have been released, and the deposit is now closed.",
-    "LIQUIDATION_IN_PROGRESS": "The funds backing this deposit are being auctioned off."
-  } as any)[state] || "";
+    'REDEEMED': "$$utils.state_tooltip.redeemed",
+    "LIQUIDATION_IN_PROGRESS": "$$utils.state_tooltip.liquidation_in_progress"
+  } as any)[state] || "$$utils.state_tooltip.default";
 
   return text;
 }

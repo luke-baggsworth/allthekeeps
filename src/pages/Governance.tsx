@@ -12,6 +12,7 @@ import {FormattedTime, TimeToNow} from "../components/FormattedTime";
 import {ExplainerIcon} from "../components/ExplainerIcon";
 import {usePriceFeed} from "../components/PriceFeed";
 import {getWeiAsEth} from "../utils/getWeiAsEth";
+import { useTranslation } from 'react-i18next';
 
 const GOVERNANCE_QUERY = gql`
     fragment Change on GovernanceChange {
@@ -62,11 +63,12 @@ const GOVERNANCE_QUERY = gql`
 
 
 export function Governance() {
+  const { t } = useTranslation();
   return  <div style={{padding: '20px'}}>
     <Helmet>
-      <title>Governance</title>
+      <title>{t('header.governance')}</title>
     </Helmet>
-    <h1 style={{marginTop: 0}}>Governance</h1>
+    <h1 style={{marginTop: 0}}>{t('header.governance')}</h1>
     <Content />
   </div>
 }
@@ -74,9 +76,10 @@ export function Governance() {
 
 export function Content() {
   const { loading, error, data } = useQuery(GOVERNANCE_QUERY);
+  const { t } = useTranslation();
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :( {""+ error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error) return <p>{t('error')} :( {""+ error}</p>;
 
   return <div>
     <div  style={{
@@ -84,43 +87,43 @@ export function Content() {
       flexDirection: 'row'
     }}>
       <Paper padding>
-        <Block title={"Deposits Enabled"} tooltip={"New deposits can be paused for 10 days in an emergency."}>
-          {data.governance.newDepositsAllowed ? "Yes" : "Emergency Break in Effect"}
+        <Block title={t('governance.deposits_enabled')} tooltip={t('governance.deposits_enabled_tooltip')}>
+          {data.governance.newDepositsAllowed ? t('yes') : t('governance.emergency_break')}
         </Block>
 
-        <Block title={"Lot Sizes"} tooltip={"The available sizes when creating a new deposit."}>
+        <Block title={t('governance.lot_sizes')} tooltip={t('governance.lot_sizes_tooltip')}>
           {formatLotSizes(data.governance.lotSizes)}
         </Block>
 
-        <Block title={"Signer Fee"} tooltip={"The fee that goes to the signers who guarantee a deposit, cannot be set to a value <0.02% or >10%."}>
+        <Block title={t('governance.singer_free')} tooltip={t('governance.singer_free_tooltip')}>
           {formatter.format(1 / data.governance.signerFeeDivisor)}
         </Block>
 
-        <Block title={"Factory Contracts"}>
+        <Block title={t('governance.factory_contracts')}>
           <div>
-            <span style={{color: '#rgb(62 62 62)'}}>Factory Selector: </span> <Address address={data.governance.factorySelector} />
+            <span style={{color: '#rgb(62 62 62)'}}>{t('governance.factory_selector')}: </span> <Address address={data.governance.factorySelector} />
           </div>
           <div>
-            <span style={{color: '#rgb(62 62 62)'}}>Fully Backed Factory: </span> <Address address={data.governance.fullyBackedFactory} />
+            <span style={{color: '#rgb(62 62 62)'}}>{t('governance.fully_backed_factory')}: </span> <Address address={data.governance.fullyBackedFactory} />
           </div>
           <div>
-            <span style={{color: '#rgb(62 62 62)'}}>Keep Staked Factory: </span> <Address address={data.governance.keepStakedFactory} />
-          </div>
-        </Block>
-
-        <Block title={"Collateralization Thresholds"}>
-          <div>
-            <span style={{color: '#rgb(62 62 62)'}}>Initial: </span> {data.governance.initialCollateralizedPercent}%
-          </div>
-          <div>
-            <span style={{color: '#rgb(62 62 62)'}}>Undercollaterized: </span> {data.governance.undercollateralizedThresholdPercent}%
-          </div>
-          <div>
-            <span style={{color: '#rgb(62 62 62)'}}>Severly Undercollaterized: </span> {data.governance.severelyUndercollateralizedThresholdPercent}%
+            <span style={{color: '#rgb(62 62 62)'}}>{t('governance.keep_stacked_factory')}: </span> <Address address={data.governance.keepStakedFactory} />
           </div>
         </Block>
 
-        <Block title={"Price Feeds"}>
+        <Block title={t('governance.collateralization_thresholds')}>
+          <div>
+            <span style={{color: '#rgb(62 62 62)'}}>{t('governance.initial_threshold')}: </span> {data.governance.initialCollateralizedPercent}%
+          </div>
+          <div>
+            <span style={{color: '#rgb(62 62 62)'}}>{t('governance.undercollaterized_threshold')}: </span> {data.governance.undercollateralizedThresholdPercent}%
+          </div>
+          <div>
+            <span style={{color: '#rgb(62 62 62)'}}>{t('governance.severly_undercollaterized')}: </span> {data.governance.severelyUndercollateralizedThresholdPercent}%
+          </div>
+        </Block>
+
+        <Block title={t('governance.price_feeds')}>
           {data.governance.priceFeeds.map((feed: any) => {
             return <div><Address address={feed} /></div>
           })}
@@ -130,10 +133,10 @@ export function Content() {
       <div style={{flex: 0, minWidth: '400px', marginLeft: '40px'}}>
         <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
           <ExplainerIcon width={"2em"} height={"2em"}/>
-          <strong style={{marginTop: 0, paddingLeft: '0.3em', fontSize: '1.2em'}}>Governance Info</strong>
+          <strong style={{marginTop: 0, paddingLeft: '0.3em', fontSize: '1.2em'}}>{t('governance.info')}</strong>
         </div>
-        The admin key has the following abilities: <strong>a)</strong> emergency break: in the first 180 days only, it can stop new deposits for 10 days.
-        {" "}<strong>b)</strong> it can change the governance parameters on the left with 48 hours notice, but only new deposits are affected.
+        {t('governance.info1')}: <strong>a)</strong> {t('governance.info2')}
+        {" "}<strong>b)</strong> {t('governance.info3')}
       </div>
 
       <div style={{marginLeft: 20}}>
@@ -147,12 +150,12 @@ export function Content() {
       <Table style={{width: '100%'}}>
         <thead>
           <tr>
-            <th>Date</th>
+            <th>{t('governance.date')}</th>
             <th style={{paddingBottom: 10}}>
-              Action
+              {t('governance.action')}
             </th>
-            <th>Submitter</th>
-            <th>Transaction</th>
+            <th>{t('governance.submitter')}</th>
+            <th>{t('governance.Transaction')}</th>
           </tr>
         </thead>
         <tbody>
@@ -168,6 +171,7 @@ export function Content() {
 
 function PriceInfo() {
   const price = usePriceFeed();
+  const { t } = useTranslation();
 
   let content: any;
   if (!price) {
@@ -180,13 +184,13 @@ function PriceInfo() {
         marginTop: '0.5em',
         fontSize: '0.8em'
       }}>
-        <TimeToNow time={price.timestamp} /> in block <Transaction tx={price.transactionHash}>{price.blockNumber}</Transaction>.
+        <TimeToNow time={price.timestamp} /> {t('governance.price_feed_in_block')} <Transaction tx={price.transactionHash}>{price.blockNumber}</Transaction>.
       </div>
     </div>
   }
 
   return <Paper padding>
-    <Block title={"Price Feed"} tooltip={"The price of a Bitcoin in ETH - affects collateralization ratios. Updates live."}>
+    <Block title={t('governance.price_feed')} tooltip={t('governance.price_feed_tooltip')}>
       {content}
     </Block>
   </Paper>
@@ -266,15 +270,16 @@ function ActionDesc(props: {
 function LotSizesChangeRequest(props: {
   entry: any
 }) {
-  return <ActionDesc headline={"Scheduled: Available lot sizes"}>
+  const { t } = useTranslation();
+  return <ActionDesc headline={t('governance.lot_sized_change_req_action')}>
     <div>
-      New lots will be: <span>{formatLotSizes(props.entry.change.newLotSizes)}</span>
+      {t('governance.lot_sized_change_req_lose')}: <span>{formatLotSizes(props.entry.change.newLotSizes)}</span>
     </div>
     {props.entry.isRequest ? <div>
       <span  className={css`
           color: gray;
       `}>
-        Can be applied after <FormattedTime time={parseInt(props.entry.change.takesEffectAfter)} /> (48 hours).
+        {t('governance.applied')} <FormattedTime time={parseInt(props.entry.change.takesEffectAfter)} /> (48 {t('governance.hours')}).
       </span>
     </div> : null}
   </ActionDesc>
@@ -284,9 +289,10 @@ function LotSizesChangeRequest(props: {
 function LotSizesChangeDone(props: {
   entry: any
 }) {
-  return <ActionDesc headline={"Changed: Available lot sizes"}>
+  const { t } = useTranslation();
+  return <ActionDesc headline={t('governance.lot_sizes_change_action')}>
     <div>
-      Lot sizes are now: {" "} <span>{formatLotSizes(props.entry.change.newLotSizes)}</span>
+      {t('governance.lot_sizes_change_now')}: {" "} <span>{formatLotSizes(props.entry.change.newLotSizes)}</span>
     </div>
   </ActionDesc>
 }
@@ -294,8 +300,9 @@ function LotSizesChangeDone(props: {
 function UnsupportedChange(props: {
   entry: any
 }) {
+  const { t } = useTranslation();
   if (props.entry.isRequest) {
-    return <ActionDesc headline={"A governance change was scheduled."} />
+    return <ActionDesc headline={t('governance.unsupported_change_action1')} />
   }
-  return <ActionDesc headline={"A governance change was applied."} />
+  return <ActionDesc headline={t('governance.unsupported_change_action2')} />
 }

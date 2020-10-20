@@ -10,6 +10,7 @@ import {Tab, TabList, TabPanel, Tabs} from "react-tabs";
 import {GetOperatorQuery} from "../../generated/graphql";
 import {KeepsTable} from "./KeepsTable";
 import {BeaconGroupsTable} from "./BeaconGroupTable";
+import { useTranslation } from 'react-i18next';
 
 
 const OPERATOR_QUERY = gql`
@@ -38,11 +39,12 @@ const OPERATOR_QUERY = gql`
 
 
 export function Operator() {
+  const { t } = useTranslation();
   return <div className={css`
       padding: 1em;
     `}>
     <Helmet>
-      <title>Operator</title>
+      <title>{t('operator')}</title>
     </Helmet>
     <Content />
   </div>
@@ -60,12 +62,13 @@ const formatterBTC = new Intl.NumberFormat("en-US", {
 export function Content() {
   let { operatorId } = useParams<any>();
   const { loading, error, data } = useQuery<GetOperatorQuery>(OPERATOR_QUERY, {variables: {id: operatorId}});
+  const { t } = useTranslation();
 
-  if (loading) return <p>Loading...</p>;
-  if (error || !data) return <p>Error :( {""+ error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error || !data) return <p>{t('error')} :( {""+ error}</p>;
   const operator = data.operator;
   if (!operator) {
-    return <p>No such operator.</p>
+    return <p>{t('operator$.not_found')}</p>
   }
 
   const total = (parseFloat(operator.unboundAvailable) + parseFloat(operator.bonded));
@@ -78,7 +81,7 @@ export function Content() {
       font-size: 30px;
       margin-bottom: 15px;
   `}>
-      Operator: {operator.address}
+      {t('operator')}: {operator.address}
     </div>
 
 
@@ -90,7 +93,7 @@ export function Content() {
       }
       margin-bottom: 20px;
   `}>
-      <Box label={"bonded"}>
+      <Box label={t('operator$.bonded')}>
         <div>{formatter.format(operator.bonded)} ETH</div>
 
         {total > 0 ? <div style={{fontSize: '20px', color: 'gray'}}>
@@ -98,19 +101,19 @@ export function Content() {
         </div> : null}
       </Box>
 
-      <Box label={"available to bond"}>
+      <Box label={t('operator$.available_to_bond')}>
         <div>
           {formatter.format(operator.unboundAvailable)} ETH
         </div>
       </Box>
 
-      <Box label={"staked"}>
+      <Box label={t('operator$.staked')}>
         <div>
           {formatter.format(operator.stakedAmount)} KEEP
         </div>
       </Box>
 
-      <Box label={"faults"} tooltip={"How often this operator was involved in a signing group with improper behaviour. If two numbers, the first one counts how often this operator can be blamed for the fault."}>
+      <Box label={t('operator$.faults')} tooltip={t('operator$.faults_tooltip')}>
         <div>
           {operator.attributableFaultCount > 0 ? <>
             {operator.attributableFaultCount} / </> : null}
@@ -118,7 +121,7 @@ export function Content() {
         </div>
       </Box>
 
-      <Box label={"rewards"}>
+      <Box label={t('operator$.rewards')}>
         <div>
           {formatterBTC.format(getSatoshiesAsTBTC(operator.totalTBTCRewards))} TBTC
         </div>
@@ -128,22 +131,22 @@ export function Content() {
     <Tabs>
       <TabList>
         <Tab>
-          Keeps
+          {t('operator$.keeps')}
         </Tab>
         <Tab>
-          Beacon Groups
+          {t('operator$.beacon_groups')}
         </Tab>
       </TabList>
 
       <TabPanel>
         <Paper padding>
-          <h3 style={{marginTop: 0}}>Keeps</h3>
+          <h3 style={{marginTop: 0}}>{t('operator$.keeps')}</h3>
           <KeepsTable operatorId={operatorId} />
         </Paper>
       </TabPanel>
       <TabPanel>
         <Paper padding>
-          <h3 style={{marginTop: 0}}>Random Beacon Groups</h3>
+          <h3 style={{marginTop: 0}}>{t('operator$.rand_beacon_groups')}</h3>
           <BeaconGroupsTable memberships={operator.beaconGroupMemberships} />
         </Paper>
       </TabPanel>

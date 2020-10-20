@@ -10,6 +10,7 @@ import {useParams} from "react-router";
 import Tippy from "@tippyjs/react";
 import {Link} from "react-router-dom";
 import {useDepositQuery, Views} from "./Views";
+import { useTranslation } from 'react-i18next';
 
 
 // See: https://github.com/jfangrad/react-dropdown-aria/blob/68e730d1ba8894ded9ee6cfb665c7aabf985d1dc/packages/react-dropdown-aria/styles/index.ts
@@ -112,13 +113,14 @@ export function Deposits() {
   const {view: viewName} = useParams<any>();
   const dAppDomain = useDAppDomain();
   const tippy = useRef<any>();
+  const { t } = useTranslation();
 
   const currentView = Views.filter(v => v.id === viewName)[0] || Views[0];
   const depositQuery = useDepositQuery(currentView.id);
 
   return  <div style={{padding: '20px'}}>
     <Helmet>
-      <title>Deposits</title>
+      <title>{t('header.deposits')}</title>
     </Helmet>
 
     <div style={{marginBottom: '20px'}}>
@@ -141,8 +143,8 @@ export function Deposits() {
                 return <Box to={`/deposits/${view.id}`} onClick={() => {
                   tippy.current.hide();
                 }}>
-                  <div><strong>{view.label}</strong></div>
-                  <div><em>{view.description}</em></div>
+                  <div><strong>{t(view.label)}</strong></div>
+                  <div><em>{t(view.description)}</em></div>
                 </Box>
               })}
             </div>
@@ -150,20 +152,20 @@ export function Deposits() {
         }>
           <h1 style={{marginTop: 0, marginBottom: '0px', cursor: 'pointer'}} className={css`        
           `}>
-            {currentView.label} {" "}
+            {t(currentView.label)} {" "}
             <img alt="svgImg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4Igp3aWR0aD0iMjQiIGhlaWdodD0iMjQiCnZpZXdCb3g9IjAgMCAyNCAyNCIKc3R5bGU9IiBmaWxsOiMwMDAwMDA7Ij48cGF0aCBkPSJNIDEyIDAgQyA1LjM3MTA5NCAwIDAgNS4zNzEwOTQgMCAxMiBDIDAgMTguNjI4OTA2IDUuMzcxMDk0IDI0IDEyIDI0IEMgMTguNjI4OTA2IDI0IDI0IDE4LjYyODkwNiAyNCAxMiBDIDI0IDUuMzcxMDk0IDE4LjYyODkwNiAwIDEyIDAgWiBNIDEyIDE4LjUgTCA2LjUgMTIgTCAxMCAxMiBMIDEwIDYgTCAxNCA2IEwgMTQgMTIgTCAxNy41IDEyIFoiPjwvcGF0aD48L3N2Zz4="/>
           </h1>
         </Tippy>
 
         {currentView.action === "make"
           ?  <div style={{marginLeft: "30px"}}>
-                <Button size={"tiny"} to={`https://${dAppDomain}/deposit`}>Make</Button>
+                <Button size={"tiny"} to={`https://${dAppDomain}/deposit`}>{t('deposits.make')}</Button>
               </div>
             : null}
       </div>
 
       {currentView.id == "" ? <div style={{color: 'gray', visibility: depositQuery.data?.stats.depositCount ? 'visible' : 'hidden'}}>
-        {depositQuery.data?.stats.depositCount} deposits.
+        {depositQuery.data?.stats.depositCount} {t('deposits.deposits')}.
       </div> : null}
     </div>
 

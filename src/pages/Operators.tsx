@@ -13,6 +13,7 @@ import {GetOperatorsQuery} from "../generated/graphql";
 import {useEtherscanDomain} from "../NetworkContext";
 import {getWeiAsEth} from "../utils/getWeiAsEth";
 import {getSatoshiesAsTBTC} from "../utils/getSatoshisAsTBTC";
+import { useTranslation } from 'react-i18next';
 
 const OPERATOR_QUERY = gql`
     query GetOperators(
@@ -49,17 +50,18 @@ export function Operators() {
     }
   });
   const price = usePriceFeed();
+  const { t } = useTranslation();
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :( {""+ error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error) return <p>{t('error')} :( {""+ error}</p>;
 
   const remainingCapacityBTC = price?.val ? parseFloat(data!.stats!.availableToBeBonded) / 1.5 * price.val : null;
 
   return  <div style={{padding: '20px'}}>
     <Helmet>
-      <title>Operators</title>
+      <title>{t('header.operators')}</title>
     </Helmet>
-    <h1 style={{marginTop: 0, marginBottom: 5}}>Operators</h1>
+    <h1 style={{marginTop: 0, marginBottom: 5}}>{t('header.operators')}</h1>
     <div className={css`
       display: flex;
       flex-direction: row;
@@ -68,18 +70,18 @@ export function Operators() {
       }
   `}>
       <Box
-        label={"total bonded"}
-        tooltip={"The amount of collateral backing active deposits."}
+        label={t('operators$.total_bounded')}
+        tooltip={t('operators$.total_bounded_tooltip')}
       >
         <div>{formatterSimple.format(data!.stats!.totalBonded)} <span style={{fontSize: '0.8em'}}>ETH</span></div>
       </Box>
       <Box
-        label={"available for bonding"}
-        tooltip={`The amount of collateral put up by signers still available for new deposits. BTC value is based on a 150% collateralization ratio.`}
+        label={t('operators$.available_bonding')}
+        tooltip={t('operators$.available_bonding_tooltip')}
       >
         <div>{formatterSimple.format(data!.stats!.availableToBeBonded)} <span style={{fontSize: '0.8em'}}>ETH</span></div>
         {remainingCapacityBTC !== null ? <div style={{fontSize: '20px', color: 'gray'}}>
-          capacity ~{formatter.format(remainingCapacityBTC)} BTC
+          {t('operators$.available_capacity')} ~{formatter.format(remainingCapacityBTC)} BTC
         </div> : null}
       </Box>
     </div>
@@ -109,45 +111,46 @@ export function OperatorsTable(props: {
   const {data} = props;
   const etherscan = useEtherscanDomain();
   const price = usePriceFeed();
+  const { t } = useTranslation();
 
   return <Table
       style={{width: '100%'}}>
     <thead>
     <tr>
-      <th>Address</th>
+      <th>{t('address')}</th>
       <th>
         <SortableHeader fieldId={"activeKeepCount"} state={props.sortState}>
-          # Keeps <InfoTooltip>Number of keeps/deposits this operator is securing.</InfoTooltip>
+          # {t('keeps')} <InfoTooltip>{t('operators$.keeps_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>      
         <SortableHeader fieldId={"bonded"} state={props.sortState}>
-          Amount Bonded <InfoTooltip>Collateral backing active deposits.</InfoTooltip>
+          {t('amount_bonded')} <InfoTooltip>{t('operators$.amount_bonded_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>
         <SortableHeader fieldId={"unboundAvailable"} state={props.sortState}>
-          Amount Available <InfoTooltip>Collateral available for further deposits.</InfoTooltip>
+          {t('amount_available')} <InfoTooltip>{t('operators$.amount_available_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>
         <SortableHeader fieldId={"stakedAmount"} state={props.sortState}>
-          Amount Staked <InfoTooltip>The stake will be seized in case of fraud.</InfoTooltip>
+          {t('amount_staked')} <InfoTooltip>{t('operators$.amount_staked_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>
         <SortableHeader fieldId={"totalTBTCRewards"} state={props.sortState}>
-          BTC Rewards <InfoTooltip>The BTC fees earned by this operator.</InfoTooltip>
+          {t('BTC_rewards')} <InfoTooltip>{t('operators$.BTC_rewards_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>
         <SortableHeader fieldId={"totalETHRewards"} state={props.sortState}>
-          ETH Rewards <InfoTooltip>The ETH fees earned by this operator.</InfoTooltip>
+          {t('ETH_rewards')} <InfoTooltip>{t('operators$.ETH_rewards_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>
         <SortableHeader fieldId={"totalFaultCount"} state={props.sortState}>
-          Faults <InfoTooltip>How often this operator was involved in a signing group with improper behaviour. If two numbers, the first one counts how often this operator can be blamed for the fault.</InfoTooltip>
+          {t('faults')} <InfoTooltip>{t('operators$.faults_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
     </tr>

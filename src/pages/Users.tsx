@@ -11,6 +11,7 @@ import {usePriceFeed} from "../components/PriceFeed";
 import {Box} from "../components/Box";
 import {GetOperatorsQuery, GetUsersQuery} from "../generated/graphql";
 import {useEtherscanDomain} from "../NetworkContext";
+import { useTranslation } from 'react-i18next';
 
 const USERS_QUERY = gql`
     query GetUsers(
@@ -31,6 +32,7 @@ const USERS_QUERY = gql`
 
 export function Users() {
   const sortState = useSort("numDepositsCreated");
+  const { t } = useTranslation();
   const { loading, error, data } = useQuery<GetUsersQuery>(USERS_QUERY, {
     variables: {
       orderBy: sortState.column,
@@ -38,14 +40,14 @@ export function Users() {
     }
   });
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :( {""+ error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error) return <p>{t('error')} :( {""+ error}</p>;
 
   return  <div style={{padding: '20px'}}>
     <Helmet>
-      <title>Users</title>
+      <title>{t('header.users')}</title>
     </Helmet>
-    <h1 style={{marginTop: 0, marginBottom: 25}}>Users
+    <h1 style={{marginTop: 0, marginBottom: 25}}>{t('header.users')}
     </h1>
     <Paper padding>
       <UsersTable data={data} sortState={sortState} />
@@ -60,30 +62,31 @@ export function UsersTable(props: {
 }) {
   const {data} = props;
   const etherscan = useEtherscanDomain();
+  const { t } = useTranslation();
 
   return <Table
       style={{width: '100%'}}>
     <thead>
     <tr>
-      <th>Address</th>
+      <th>{t('address')}</th>
       <th>
         <SortableHeader fieldId={"numDepositsCreated"} state={props.sortState}>
-          # Created <InfoTooltip>Number of deposits the address has initiated.</InfoTooltip>
+          # {t('users.created')} <InfoTooltip>{t('users.created_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>
         <SortableHeader fieldId={"numDepositsUnfunded"} state={props.sortState}>
-          # Unfunded <InfoTooltip>Number of deposits the address has initiated, and then not completed funding.</InfoTooltip>
+          # {t('users.unfunded')} <InfoTooltip>{t('users.unfunded_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>
         <SortableHeader fieldId={"numDepositsRedeemed"} state={props.sortState}>
-          # Redeemed <InfoTooltip>Number of deposits this address has redeemed.</InfoTooltip>
+          # {t('users.redeemed')} <InfoTooltip>{t('users.redeemed_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
       <th>
         <SortableHeader fieldId={"numOwnDepositsRedeemed"} state={props.sortState}>
-          # Own Redeemed <InfoTooltip>Number of deposits this address has redeemed which were also created by it.</InfoTooltip>
+          # {t('users.own_redeemed')} <InfoTooltip>{t('users.own_redeemed_tooltip')}</InfoTooltip>
         </SortableHeader>
       </th>
     </tr>

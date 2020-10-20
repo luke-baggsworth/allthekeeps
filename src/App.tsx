@@ -20,7 +20,8 @@ import {Network, SetNetwork, useIsRopsten} from "./NetworkContext";
 import {Users} from "./pages/Users";
 import {Beacon} from "./pages/Beacon";
 import {BeaconGroup} from "./pages/Group";
-
+import {useTranslation} from 'react-i18next';
+import './i18n';
 
 function makeApolloLink(uri: string) {
   const httpLink = new HttpLink({
@@ -134,6 +135,8 @@ export default App;
 
 
 function Header() {
+  const { t } = useTranslation();
+
   return <div className={css`
     background: #fafafa; /* #48DBB4; */
     border-bottom: 1px #C4C4C4 solid;
@@ -147,23 +150,23 @@ function Header() {
     </strong>
 
     <NavigationButton to={"/deposits"}>
-      Deposits
+      {t('header.deposits')}
     </NavigationButton>
 
     <NavigationButton to={"/operators"}>
-      Operators
+      {t('header.operators')}
     </NavigationButton>
 
     <NavigationButton to={"/governance"}>
-      Governance
+      {t('header.governance')}
     </NavigationButton>
 
     <NavigationButton to={"/users"}>
-      Users
+      {t('header.users')}
     </NavigationButton>
 
     <NavigationButton to={"/beacon"}>
-      Beacon
+      {t('header.beacon')}
     </NavigationButton>
 
     <NavigationButton to={'/torch'}>
@@ -173,7 +176,7 @@ function Header() {
     <div style={{flex: 1}} />
 
     <NavigationButton to={"/about"}>
-      About
+      {t('header.about')}
     </NavigationButton>
 
   </div>

@@ -14,6 +14,7 @@ import {useWallet} from "use-wallet";
 import {Button} from "../../design-system/Button";
 import {getLiquidationCauseAsString} from "./log";
 import {formatSeconds} from "../../components/FormattedTime";
+import { useTranslation } from 'react-i18next';
 
 /**
  * Displays the deposit status in a <Box />.
@@ -28,6 +29,7 @@ export function StatusBox(props: {
   const shouldShowConfirmationInfo = deposit.currentState == 'AWAITING_BTC_FUNDING_PROOF';
   const btcTxState = useBitcoinTxState(btcAddress, deposit.lotSizeSatoshis, shouldShowConfirmationInfo)
   const timing = useTimeRemaining(deposit);
+  const { t } = useTranslation();
 
   // Secondary information/actions shown below the status.
   let secondLine: any;
@@ -45,14 +47,14 @@ export function StatusBox(props: {
     else {
       let action: any;
       if (btcTxState.hasTransaction && btcTxState.numConfirmations >= 6) {
-        action = <Button size={"tiny"} to={`https://${dAppDomain}/deposit/${deposit.contractAddress}/pay/confirming`}>Go to dApp</Button>;
+        action = <Button size={"tiny"} to={`https://${dAppDomain}/deposit/${deposit.contractAddress}/pay/confirming`}>{t('deposit$.status$.goto_dapp')}</Button>;
       }
       else if (timing === undefined) {
         action = null;
       }
       else if (timing?.remaining > 0) {
         action = <span style={{fontSize: 20, flex: 1, color: 'gray', textAlign: 'right'}}>
-          {formatSeconds(timing?.remaining)} <InfoTooltip size={0.8}>When this timer reaches zero, anyone can close the deposit, returning the bonded funds to the signers.</InfoTooltip>
+          {formatSeconds(timing?.remaining)} <InfoTooltip size={0.8}>{t('deposit$.status$.info')}</InfoTooltip>
         </span>
       }
       else {
@@ -65,7 +67,7 @@ export function StatusBox(props: {
               : <>waiting for transaction</>}
 
           <a
-              title={"Open on blockchain.com"}
+              title={t('deposit$.status$.open_blockchain')}
               href={
                 btcTxState.transactionHash
                     ? `${blockChainBaseUrl}/tx/${btcTxState.transactionHash}`
@@ -86,12 +88,12 @@ export function StatusBox(props: {
     }
   }
 
-  return <Box label={"state"}>
+  return <Box label={t('deposit$.status$.state')}>
     <LabelWithBackgroundProgress
         progress={timing?.percentage}
     >
-      {getNiceStateLabel(deposit)} {getStateTooltip(deposit.currentState)
-        ? <span className={css`position: relative; top: -0.5em; font-size: 0.6em;`}><InfoTooltip>{getStateTooltip(deposit.currentState)}</InfoTooltip></span>
+      {t(getNiceStateLabel(deposit))} {t(getStateTooltip(deposit.currentState))
+        ? <span className={css`position: relative; top: -0.5em; font-size: 0.6em;`}><InfoTooltip>{t(getStateTooltip(deposit.currentState))}</InfoTooltip></span>
         : null}
     </LabelWithBackgroundProgress>
 
@@ -103,7 +105,7 @@ export function StatusBox(props: {
                   flex-direction: row;
                   align-items: center;
               ` }>
-            <TBTCIcon /> <span style={{paddingLeft: 5}}>TBTC minted</span>
+            <TBTCIcon /> <span style={{paddingLeft: 5}}>{t('deposit$.status$.tbtc_minted')}</span>
           </div>
           : null
     }
@@ -170,6 +172,7 @@ function NotifyButton(props: {
   const wallet = useWallet()
   const deposit = props.deposit;
   const [isBusy, setBusy] = useState(false);
+  const { t } = useTranslation();
 
   let func: string;
   if (deposit.currentState == 'AWAITING_SIGNER_SETUP') {
@@ -213,9 +216,8 @@ function NotifyButton(props: {
       setBusy(false)
     }
   }}>
-    Notify Timeout {isBusy ? <Loading /> : <InfoTooltip>
-    If the deposit process was not completed in time. Notifying the contract of this will release
-    the bonded funds back to the signers.
+    {t('deposit$.status$.notify_timeout')} {isBusy ? <Loading /> : <InfoTooltip>
+    {t('deposit$.status$.notify_timeout_tooltip')}
   </InfoTooltip>}
   </Button>
 }

@@ -22,7 +22,7 @@ import {useBtcAddressFromPublicKey} from "../../utils/useBtcAddressFromPublicKey
 import {LabelWithBackgroundProgress} from "../Deposit/StatusBox";
 import {BTCTag} from "../../components/CurrencyTags";
 import {UseDepositQuery, useDepositQuery} from "./Views";
-
+import { useTranslation } from 'react-i18next';
 
 export function DepositsTable(props: {
   query: UseDepositQuery
@@ -31,9 +31,10 @@ export function DepositsTable(props: {
   const [source, target] = useSingleton();
   const price = usePriceFeed();
   const etherscan = useEtherscanDomain();
+  const { t } = useTranslation();
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :( {""+ error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error) return <p>{t('error')} :( {""+ error}</p>;
 
   return <>
     <Tippy singleton={source} delay={500} />
@@ -43,25 +44,25 @@ export function DepositsTable(props: {
       <thead>
       <tr>
         {
-          (dateColumn == "updatedAt") ? <th>Updated <InfoTooltip>
-            When this deposit last changed state, during the funding, redemption or liquidation processes.
+          (dateColumn == "updatedAt") ? <th>{t('deposits.table.updated')} <InfoTooltip>
+            {t('deposits.table.updated_tooltip')}
           </InfoTooltip></th>
               :
-              (dateColumn == "redemptionStartedAt") ? <th>Started <InfoTooltip>
-                When the redemption process, or liquidation, started.
+              (dateColumn == "redemptionStartedAt") ? <th>{t('deposits.table.started')} <InfoTooltip>
+                {t('deposits.table.started_tooltip')}
               </InfoTooltip></th>
-                  : <th>Created <InfoTooltip>
-                    When this deposit was created.
+                  : <th>{t('deposits.table.created')} <InfoTooltip>
+                    {t('deposits.table.created_tooltip')}
                   </InfoTooltip></th>
         }
 
         <th>
-          Contract <InfoTooltip>
-          Every deposit is represented on-chain by a contract.
+          {t('deposits.table.contract')} <InfoTooltip>
+          {t('deposits.table.contract_tooltip')}
         </InfoTooltip>
         </th>
-        <th>Lot Size</th>
-        <th>State</th>
+        <th>{t('deposits.table.lot_size')}</th>
+        <th>{t('deposits.table.state')}</th>
       </tr>
       </thead>
       <tbody>
@@ -88,6 +89,7 @@ const DepositRow = React.memo((props: {
   target: any
 }) => {
   const {deposit, dateColumn, etherscan, price, target} = props;
+  const { t } = useTranslation();
   return  <tr key={deposit.id}>
     <td>
       <TimeToNow time={deposit[dateColumn]} />
@@ -96,7 +98,7 @@ const DepositRow = React.memo((props: {
       <Link to={`/deposit/${deposit.id}`}>
         {deposit.contractAddress}
       </Link>
-      <a title={"Open on Etherscan"} href={`https://${etherscan}/address/${deposit.contractAddress}`} className={css`
+      <a title={t('deposits.table.open_etherscan')} href={`https://${etherscan}/address/${deposit.contractAddress}`} className={css`
                 font-size: 0.8em;
                 padding-left: 0.2em;
                `}>
@@ -121,7 +123,7 @@ const DepositRow = React.memo((props: {
       </div>
       &nbsp;
       {hasDepositBeenUsedToMint(deposit.tdtToken.owner, deposit.currentState)
-          ? <><Tippy content="TBTC was minted" singleton={target}><TBTCIcon /></Tippy>&nbsp;</>
+          ? <><Tippy content={t('deposits.table.tbtc_minted')} singleton={target}><TBTCIcon /></Tippy>&nbsp;</>
           : ""
       }
       <StateLabelWithProgressBar deposit={deposit} />
@@ -138,11 +140,12 @@ const DepositRow = React.memo((props: {
 export function StateLabelWithProgressBar(props: {
   deposit: any
 }) {
+  const { t } = useTranslation();
   const timing = useTimeRemaining(props.deposit, 5);
   return <LabelWithBackgroundProgress
       progress={timing?.percentage}
   >
-    {getNiceStateLabel(props.deposit)}
+    {t(getNiceStateLabel(props.deposit))}
   </LabelWithBackgroundProgress>
 }
 

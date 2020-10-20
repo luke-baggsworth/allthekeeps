@@ -23,6 +23,7 @@ import {Log} from "./log";
 import {useDAppDomain, useEtherscanDomain} from "../../NetworkContext";
 import {useBtcAddressFromPublicKey} from "../../utils/useBtcAddressFromPublicKey";
 import {StatusBox} from "./StatusBox";
+import { useTranslation } from 'react-i18next';
 
 
 const DEPOSIT_QUERY = gql`
@@ -89,11 +90,12 @@ const formatter = new Intl.NumberFormat("en-US", {
 
 
 export function Deposit() {
+  const { t } = useTranslation();
   return <div className={css`
       padding: 1em;
     `}>
     <Helmet>
-      <title>Deposit</title>
+      <title>{t('deposit')}</title>
     </Helmet>
     <Content />
   </div>
@@ -106,11 +108,12 @@ export function Content() {
   useSubscription(DEPOSIT_SUBSCRIPTION, { variables: { id: depositId } });
   const etherscan = useEtherscanDomain();
   const dAppDomain = useDAppDomain();
+  const { t } = useTranslation();
 
   const btcAddress = useBtcAddressFromPublicKey(data?.deposit.bondedECDSAKeep.publicKey);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :( {""+ error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error) return <p>{t('error')} :( {""+ error}</p>;
 
   const canBeRedeemed = ['ACTIVE', 'COURTESY_CALL'].indexOf(data.deposit.currentState) > -1;
   const isAtTerm = false;  // XXX still needs to be fixed
@@ -124,13 +127,13 @@ export function Content() {
         margin-right: 20px;
       }
   `}>
-      <Box label={"lot size"}>
+      <Box label={t('deposit$.lot_size')}>
         {getSatoshisAsBitcoin(data.deposit.lotSizeSatoshis)} BTC
       </Box>
 
       <StatusBox deposit={data.deposit} />
 
-      <Box label={"creation date"}>
+      <Box label={t('deposit$.creation')}>
         <TimeToNow time={data.deposit.createdAt} />
       </Box>
     </div>
@@ -146,8 +149,8 @@ export function Content() {
             font-weight: bold;
             margin-bottom: 0.5em;
           `}>
-            Ownership <InfoTooltip>
-              For every deposit, a non-fungible TDT Token is minted. Whoever owns this token, owns the deposit.
+            {t('deposit$.ownership')} <InfoTooltip>
+              {t('deposit$.ownership_tooltip')}
             </InfoTooltip>
           </div>
           <div className={css`
@@ -155,14 +158,12 @@ export function Content() {
             {
               hasDepositBeenUsedToMint(data.deposit.tdtToken.owner, data.deposit.currentState)
                   ? <div>
-                    This deposit has been used to mint TBTC. The corresponding TDT token is now
-                    owned by the <a href={`https://${etherscan}/address/${getVendingMachineAddress()}`}>Vending Machine contract</a>.
+                    {t('deposit$.ownership_info1')} <a href={`https://${etherscan}/address/${getVendingMachineAddress()}`}>{t('deposit$.ownership_info1_link')}</a>.
                   </div>
                   : (data.deposit.tdtToken.owner == data.deposit.tdtToken.minter) ? <div>
-                    The TDT Token representing ownership over this deposit is owned by the original
-                    deposit creator, <Address address={data.deposit.tdtToken.owner} />.
+                    {t('deposit$.ownership_info2')}, <Address address={data.deposit.tdtToken.owner} />.
                   </div> : <div>
-                    The TDT Token representing ownership over this deposit is owned by <Address address={data.deposit.tdtToken.owner} />.
+                    {t('deposit$.ownership_info3')} <Address address={data.deposit.tdtToken.owner} />.
                   </div>
             }
           </div>
@@ -173,14 +174,14 @@ export function Content() {
               color: gray;
             }            
           `}>
-            <a href={`https://${etherscan}/token/${getTDTTokenAddress()}?a=${data.deposit.tdtToken.tokenID}`}>TDT Token on Etherscan</a>
+            <a href={`https://${etherscan}/token/${getTDTTokenAddress()}?a=${data.deposit.tdtToken.tokenID}`}>{t('deposit$.tdt_token')}</a>
           </div>
 
           {(canBeRedeemedByAnyone) ?
             <div style={{marginTop: 20}}>
-              This deposit can be redeemed by anyone, even non-owners. <InfoTooltip>Because it is owned by the Vending Machine, has been courtesy called, or is at-term, anyone can exchange TBTC for the Bitcoin deposited here.</InfoTooltip>
+              {t('deposit$.can_redeemed_info1')} <InfoTooltip>{t('deposit$.can_redeemed_info2')}</InfoTooltip>
               <div style={{marginTop: '8px'}}><Button size={"small"} to={`https://${dAppDomain}/deposit/${data.deposit.contractAddress}/redeem`}>
-                Redeem
+                {t('deposit$.redeem')}
               </Button></div>
             </div>
           : null }
@@ -192,30 +193,30 @@ export function Content() {
                 data={[
                   {
                     key: 'tokenOwner',
-                    label: "Current Owner",
-                    tooltip: "Deposit owner as represented by ownership over the TDT token.",
+                    label: t('deposit$.owner'),
+                    tooltip: t('deposit$.owner_tooltip'),
                     value: <Address address={data.deposit.tdtToken.owner} />
                   },
                   {
                     key: 'tokenMinter',
-                    label: "Creator",
-                    tooltip: "Original creator of this deposit.",
+                    label: t('deposit$.creator'),
+                    tooltip: t('deposit$.creator_tooltip'),
                     value: <Address address={data.deposit.tdtToken.minter}  />
                   },
                   {
                     key: 'tokenId',
-                    label: "Token ID",
+                    label: t('deposit$.token_id'),
                     value: <Address address={data.deposit.tdtToken.tokenID} to={`https://${etherscan}/token/${getTDTTokenAddress()}?a=${data.deposit.tdtToken.tokenID}`}  />
                   },
                   data.deposit.endOfTerm ? {
                     key: 'endOfTerm',
-                    label: "End Of Term",
-                    tooltip: "Within the term, only the owner can redeem the deposit or mint TBTC.",
+                    label: t('deposit$.end_of_term'),
+                    tooltip: t('deposit$.end_of_term_tooltip'),
                     value: <TimeToNow time={data.deposit.endOfTerm} />
                   } : undefined,
                   {
                     key: 'depositContract',
-                    label: "Deposit Contract",
+                    label: t('deposit$.dep_contract'),
                     value: <Address address={data.deposit.contractAddress}  />
                   }
                 ]}
@@ -231,15 +232,15 @@ export function Content() {
             padding: 20px;
             padding-bottom: 0;
           `}>
-            Keep <InfoTooltip>
-              The Keep holds the original BTC in custody, and signers stake ETH as a security bond.
+            {t('deposit$.keep')} <InfoTooltip>
+              {t('deposit$.keep_tooltip')}
             </InfoTooltip>
           </div>
           <PropertyTable data={[
             {
               key: 'signers',
-              label: "Signers",
-              tooltip: "The node operators collectively holding the Bitcoin private key",
+              label: t('deposit$.singers'),
+              tooltip: t('deposit$.singers_tooltip'),
               value: <div>
                 {data.deposit.bondedECDSAKeep.members.map((m: any) => {
                   return <div key={m.address}>
@@ -250,44 +251,44 @@ export function Content() {
             },
             {
               key: 'bondedAmount',
-              label: "Bond",
-              tooltip: "The total value the signers have bonded to guarantee this deposit.",
+              label: t('deposit$.bond'),
+              tooltip: t('deposit$.bond_tooltip'),
               value: <span>{getWeiAsEth(data.deposit.bondedECDSAKeep.totalBondAmount).toFixed(2)} ETH</span>
             },
             {
               key: 'collateralization',
-              label: "Collaterialization",
-              tooltip: "If ETH loses value, the keep may become undercollaterized",
+              label: t('deposit$.collaterialization'),
+              tooltip: t('deposit$.collaterialization_tooltip'),
               value: <CollaterizationStatus deposit={data.deposit} highlightNormal={true} style={{fontWeight: 'bold'}} />
             },
             {
               key: 'thresholds',
-              label: "Thresholds",
-              tooltip: "The collateralization requirements for this deposit: Initial / Courtesy Call / Liquidation",
+              label: t('deposit$.thresholds'),
+              tooltip: t('deposit$.thresholds_tooltip'),
               value: <span>
                 {formatter.format(data.deposit.initialCollateralizedPercent / 100)}<span style={{color: 'silver'}}> / </span>{formatter.format(data.deposit.undercollateralizedThresholdPercent / 100)}<span style={{color: 'silver'}}> / </span>{formatter.format(data.deposit.severelyUndercollateralizedThresholdPercent / 100)}
               </span>
             },
             {
               key: 'honestThreshold',
-              label: "Honest Threshold",
-              tooltip: "How many signers must be honest for the bond not be lost.",
+              label: t('deposit$.honest_threshold'),
+              tooltip: t('deposit$.honest_threshold_tooltip'),
               value: <span>{formatter.format(data.deposit.bondedECDSAKeep.honestThreshold / data.deposit.bondedECDSAKeep.members.length)}</span>
             },
             {
               key: 'keepAddress',
-              label: "Contract Address",
-              tooltip: "The contract managing the keep",
+              label: t('deposit$.contract_address'),
+              tooltip: t('deposit$.contract_address_tooltip'),
               value: <Address address={data.deposit.keepAddress} />
             },
             btcAddress ? {
               key: 'publicKey',
-              label: "BTC Address",
+              label: t('deposit$.BTC_address'),
               value: <BitcoinAddress address={btcAddress} />
             } : undefined,
             {
               key: 'status',
-              label: "Status",
+              label: t('deposit$.status'),
               value: data.deposit.bondedECDSAKeep.status
             }
           ]} />
@@ -299,7 +300,7 @@ export function Content() {
       <div className={css`           
         padding: 20px;
       `}>
-        <h3 style={{marginTop: 0}}>Log</h3>
+        <h3 style={{marginTop: 0}}>{t('deposit$.log')}</h3>
         {/*<div style={{marginBottom: '20px'}}>*/}
         {/*  <div><strong>Next Step</strong></div>*/}
         {/*  The depositor must submit proof of having sent to Bitcoin to the deposit address, once at least 6 confirmations have been reached. <TimeToNow time={data.deposit.currentStateTimesOutAt} /> left to do so.*/}

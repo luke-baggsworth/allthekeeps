@@ -16,6 +16,7 @@ import {getWeiAsEth} from "../../utils/getWeiAsEth";
 import React from "react";
 import {gql, useQuery} from "@apollo/client";
 import {GetOperatorKeepsQuery, GetOperatorQuery} from "../../generated/graphql";
+import { useTranslation } from 'react-i18next';
 
 const formatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2
@@ -65,6 +66,7 @@ export function KeepsTable(props: {
   const price = usePriceFeed();
   const etherscan = useEtherscanDomain();
   const sortState = useSort("createdAt");
+  const { t } = useTranslation();
 
   const { loading, error, data } = useQuery<GetOperatorKeepsQuery>(KEEPS_QUERY, {variables: {
     id: props.operatorId,
@@ -72,8 +74,8 @@ export function KeepsTable(props: {
     orderDirection: sortState.direction
   }});
 
-  if (loading) return <p>Loading...</p>;
-  if (error || !data) return <p>Error :( {""+ error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error || !data) return <p>{t('error')} :( {""+ error}</p>;
 
   const keeps = data.operator?.keeps;
 
@@ -91,22 +93,22 @@ export function KeepsTable(props: {
       <tr>
         <th>
           <SortableHeader fieldId={"createdAt"} state={sortState}>
-            Created
+            {t('operator$.keeps_table.created')}
           </SortableHeader>
         </th>
         <th>
-          Contract <InfoTooltip>
-          Every deposit is represented on-chain by a contract.
+          {t('operator$.keeps_table.contract')} <InfoTooltip>
+          {t('operator$.keeps_table.contract_tooltip')}
         </InfoTooltip>
         </th>
         <th>
-          Lot Size
+          {t('operator$.keeps_table.lot_size')}
         </th>
-        <th>State</th>
-        <th>Collateralization</th>
+        <th>{t('operator$.keeps_table.state')}</th>
+        <th>{t('operator$.keeps_table.collateralization')}</th>
         <th>
           <SortableHeader fieldId={"totalBondAmount"} state={sortState}>
-            Bond
+            {t('operator$.keeps_table.bond')}
           </SortableHeader>
         </th>
       </tr>
@@ -124,7 +126,7 @@ export function KeepsTable(props: {
             <Link to={`/deposit/${deposit.id}`}>
               {deposit.contractAddress}
             </Link>
-            <a title={"Open on Etherscan"} href={`https://${etherscan}/address/${deposit.contractAddress}`}
+            <a title={t('operator$.keeps_table.open_etherscan')} href={`https://${etherscan}/address/${deposit.contractAddress}`}
                className={css`
                 font-size: 0.8em;
                 padding-left: 0.2em;
@@ -153,10 +155,10 @@ export function KeepsTable(props: {
             </div>
             &nbsp;
             {hasDepositBeenUsedToMint(deposit.tdtToken.owner, deposit.currentState)
-                ? <><Tippy content="TBTC was minted" singleton={target}><TBTCIcon/></Tippy>&nbsp;</>
+                ? <><Tippy content={t('operator$.keeps_table.tbtc_minted')} singleton={target}><TBTCIcon/></Tippy>&nbsp;</>
                 : ""
             }
-            {getNiceStateLabel(deposit)}
+            {t(getNiceStateLabel(deposit))}
           </td>
 
           <td>

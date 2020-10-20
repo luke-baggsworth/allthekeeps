@@ -18,7 +18,7 @@ import 'react-tabs/style/react-tabs.css';
 import {ETHValue} from "../../components/ETHValue";
 import {ETHTag, GweiTag} from "../../components/CurrencyTags";
 import {getGroupName} from "./GroupName";
-
+import { useTranslation } from 'react-i18next';
 
 const BEACON_QUERY = gql`
     query GetRelayEntries {
@@ -47,25 +47,26 @@ const BEACON_QUERY = gql`
 
 export function Beacon() {
   const { loading, error, data } = useQuery<GetRelayEntriesQuery>(BEACON_QUERY, );
+  const { t } = useTranslation();
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :( {""+ error}</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error) return <p>{t('error')} :( {""+ error}</p>;
 
   return  <div style={{padding: '20px'}}>
     <Helmet>
-      <title>Random Beacon</title>
+      <title>{t('rand_beacon')}</title>
     </Helmet>
     <h1 style={{marginTop: 0, marginBottom: 25}}>
-      Random Beacon
+      {t('rand_beacon')}
     </h1>
 
     <Tabs>
       <TabList>
         <Tab>
-          Entries <InfoTooltip>Random numbers requested by smart contracts on Ethereum, notably the tBTC system.</InfoTooltip>
+          {t('entries')} <InfoTooltip>{t('beacon.entries_tooltip')}</InfoTooltip>
         </Tab>
         <Tab>
-          Groups <InfoTooltip>Operator groups tasked with providing randomness.</InfoTooltip>
+          {t('groups')} <InfoTooltip>{t('beacon.groups_tooltip')}</InfoTooltip>
         </Tab>
       </TabList>
 
@@ -88,27 +89,28 @@ export function RelayEntriesTable(props: {
   data: any,
 }) {
   const {data} = props;
+  const { t } = useTranslation();
 
   return <Table
       style={{width: '100%'}}>
     <thead>
     <tr>
       <th>
-        Requested At
+        {t('beacon.requested')}
       </th>
       <th>
-        Provided After
+        {t('beacon.provided')}
       </th>
       <th>
-        Group <InfoTooltip>The group providing this result.</InfoTooltip>
+        {t('beacon.group')} <InfoTooltip>{t('beacon.group_tooltip')}</InfoTooltip>
       </th>
       <th>
-        Reward <InfoTooltip>ETH earned by each member of the group providing this value.</InfoTooltip>
+        {t('beacon.reward')} <InfoTooltip>{t('beacon.reward_tooltip')}</InfoTooltip>
       </th>
       <th>
-        Random Value
+        {t('beacon.rand_val')}
       </th>
-      <th>Request ID</th>
+      <th>{t('beacon.req_id')}</th>
     </tr>
     </thead>
     <tbody>
@@ -146,19 +148,20 @@ export function BeaconGroupsTable(props: {
   data: any,
 }) {
   const {data} = props;
+  const { t } = useTranslation();
 
   return <Table
       style={{width: '100%'}}>
     <thead>
     <tr>
       <th>
-        Group
+        {t('beacon.group')}
       </th>
       <th>
-        Total Rewards <InfoTooltip>ETH earned by each member in this group.</InfoTooltip>
+        {t('beacon.total_rewards')} <InfoTooltip>{t('beacon.total_rewards_tooltip')}</InfoTooltip>
       </th>
       <th>
-        Created At
+        {t('beacon.created')}
       </th>
     </tr>
     </thead>

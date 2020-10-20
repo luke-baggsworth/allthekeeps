@@ -22,47 +22,47 @@ export const Views: {
 }[] = [
   {
     id: "",
-    label: "All Deposits",
-    description: "All deposits managed by the system.",
+    label: "deposits.views.all_deposits",
+    description: "deposits.views.all_deposits_desc",
     title: "Deposits",
     action: "make"
   },
 
   {
     id: "operations",
-    label: "Deposit Operations",
-    description: "Bitcoins entering the system.",
+    label: "deposits.views.deposit_operations",
+    description: "deposits.views.deposit_operations_desc",
     action: "make"
   },
 
   {
     id: "redemptions",
-    label: "Redemption Operations",
-    description: "Bitcoins being taken out of the system."
+    label: "deposits.views.redemption_operations",
+    description: "deposits.views.redemption_operations_desc"
   },
 
   {
     id: "liquidations",
-    label: "Liquidations & Signer Misbehaviour",
-    description: "The interesting stuff."
+    label: "deposits.views.liquid_and_singer",
+    description: "deposits.views.liquid_and_singer_desc"
   },
 
   {
     id: "redeemable",
-    label: "Redeemable",
-    description: "Deposits available for redemption by anyone."
+    label: "deposits.views.redeemable",
+    description: "deposits.views.redeemable_desc"
   },
 
   {
     id: "unminted",
-    label: "Unminted TDTs",
-    description: "Deposits which custody Bitcoin, but no TBTC has been minted."
+    label: "deposits.views.unminted_TDTs",
+    description: "deposits.views.unminted_TDTs_desc"
   },
 
   {
     id: "notifiable",
-    label: "Notifiable Deposits",
-    description: "Deposits whose current state has timed out and can be notified."
+    label: "deposits.views.notifiable_deposits",
+    description: "deposits.views.notifiable_deposits_desc"
   },
 ]
 
