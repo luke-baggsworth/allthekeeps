@@ -252,6 +252,27 @@
       "notifiable_deposits": "Notifiable Deposits",
       "notifiable_deposits_desc": "Deposits whose current state has timed out and can be notified.",
       "liquidations_scanner": "Liquidations Scanner"
+    },
+    "liquidations_scanner": {
+      "info": {
+        "active": "Active deposits",
+        "courtesy_call": "Courtesy call",
+        "fraud_liquidation_in_progress": "Fraud liquidation in progress",
+        "liquidation_in_progress": "Liquidation in progress",
+        "liquidated": "Liquidated"
+      },
+      "table": {
+        "id": "Deposit ID",
+        "collaterialization": "Collaterialization",
+        "created": "Created At",
+        "lot_size": "Lot size",
+        "initial_collateralized": "Initial Collateralized",
+        "undercollateralized_threshold": "Undercollateralized Threshold",
+        "severely_undercollateralized_threshold": "Severely Undercollateralized Threshold",
+        "bonded_size": "Bonded size",
+        "members": "Members",
+        "no_data": "No data"
+      }
     }
   },
 
