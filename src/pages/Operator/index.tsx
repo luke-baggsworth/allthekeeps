@@ -11,11 +11,12 @@ import {GetOperatorQuery} from "../../generated/graphql";
 import {KeepsTable} from "./KeepsTable";
 import {BeaconGroupsTable} from "./BeaconGroupTable";
 import { useTranslation } from 'react-i18next';
+import {useQueryWithTimeTravel} from "../../TimeTravel";
 
 
 const OPERATOR_QUERY = gql`
-    query GetOperator($id: ID!) {
-        operator(id: $id) {
+    query GetOperator($id: ID!, $block: Block_height) {
+        operator(id: $id, block: $block) {
             id,
             address,
             bonded,
@@ -61,7 +62,7 @@ const formatterBTC = new Intl.NumberFormat("en-US", {
 
 export function Content() {
   let { operatorId } = useParams<any>();
-  const { loading, error, data } = useQuery<GetOperatorQuery>(OPERATOR_QUERY, {variables: {id: operatorId}});
+  const { loading, error, data } = useQueryWithTimeTravel<GetOperatorQuery>(OPERATOR_QUERY, {variables: {id: operatorId}});
   const { t } = useTranslation();
 
   if (loading) return <p>{t('loading')}...</p>;

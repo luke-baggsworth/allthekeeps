@@ -1,4 +1,4 @@
-import React, {useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Paper} from "../../design-system/Paper";
 import {DepositsTable} from "./DepositsTable";
 import {Helmet} from "react-helmet";
@@ -11,6 +11,7 @@ import Tippy from "@tippyjs/react";
 import {Link} from "react-router-dom";
 import {useDepositQuery, Views} from "./Views";
 import { useTranslation } from 'react-i18next';
+import {Pagination, usePagination} from "../../components/Pagination";
 
 
 // See: https://github.com/jfangrad/react-dropdown-aria/blob/68e730d1ba8894ded9ee6cfb665c7aabf985d1dc/packages/react-dropdown-aria/styles/index.ts
@@ -115,8 +116,20 @@ export function Deposits() {
   const tippy = useRef<any>();
   const { t } = useTranslation();
 
+  const [pageNumber, setPageNumber] = useState(1);
   const currentView = Views.filter(v => v.id === viewName)[0] || Views[0];
-  const depositQuery = useDepositQuery(currentView.id);
+
+  useEffect(() => {
+    setPageNumber(1);
+  }, [currentView])
+
+  const depositQuery = useDepositQuery(currentView.id, pageNumber);
+  const pagination = usePagination({
+    pageNumber,
+    setPageNumber,
+    numResults: depositQuery.data?.deposits.length,
+    perPage: 500,
+  })
 
   return  <div style={{padding: '20px'}}>
     <Helmet>
@@ -173,6 +186,10 @@ export function Deposits() {
       <DepositsTable
           query={depositQuery}
       />
+
+      <div style={{marginTop: '30px'}}>
+        <Pagination pagination={pagination} />
+      </div>
     </Paper>
   </div>
 }

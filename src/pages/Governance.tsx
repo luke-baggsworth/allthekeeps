@@ -13,21 +13,11 @@ import {ExplainerIcon} from "../components/ExplainerIcon";
 import {usePriceFeed} from "../components/PriceFeed";
 import {getWeiAsEth} from "../utils/getWeiAsEth";
 import { useTranslation } from 'react-i18next';
+import {useQueryWithTimeTravel} from "../TimeTravel";
 
 const GOVERNANCE_QUERY = gql`
-    fragment Change on GovernanceChange {
-        type,
-        requestedAt,
-        takesEffectAfter,
-        
-        newLotSizes,
-        newFactorySelector,
-        newFullyBackedFactory,
-        newKeepStakedFactory,
-    }
-    
-    query GetGovernance {
-        governance(id: "GOVERNANCE") {
+    query GetGovernance($block: Block_height) {
+        governance(id: "GOVERNANCE", block: $block) {
             newDepositsAllowed
             
             lotSizes,
@@ -48,7 +38,7 @@ const GOVERNANCE_QUERY = gql`
             priceFeeds,
         },
         
-        governanceLogEntries(first: 300, orderBy: timestamp, orderDirection: desc) {
+        governanceLogEntries(first: 300, orderBy: timestamp, orderDirection: desc, block: $block) {
             id,
             timestamp,
             transactionHash,
@@ -58,6 +48,17 @@ const GOVERNANCE_QUERY = gql`
                 ...Change
             }
         }
+    }
+
+    fragment Change on GovernanceChange {
+        type,
+        requestedAt,
+        takesEffectAfter,
+
+        newLotSizes,
+        newFactorySelector,
+        newFullyBackedFactory,
+        newKeepStakedFactory,
     }
 `;
 
@@ -75,7 +76,7 @@ export function Governance() {
 
 
 export function Content() {
-  const { loading, error, data } = useQuery(GOVERNANCE_QUERY);
+  const { loading, error, data } = useQueryWithTimeTravel(GOVERNANCE_QUERY);
   const { t } = useTranslation();
 
   if (loading) return <p>{t('loading')}...</p>;
@@ -179,7 +180,7 @@ function PriceInfo() {
   }
   else {
     content = <div>
-      <div>{price.val.toFixed(5)} ETH</div>
+      <div>{price.val.toFixed(5)} BTC</div>
       <div style={{
         marginTop: '0.5em',
         fontSize: '0.8em'

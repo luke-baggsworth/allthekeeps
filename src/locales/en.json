@@ -182,6 +182,11 @@
     "BTC_address": "BTC Address",
     "status": "Status",
     "log": "Log",
+    "collateral": "Collateral",
+    "collateral_toolip": "The  BTC is custodied by a group of randomly chosen signing nodes which stake ETH as a security bond.",
+    "liquidation_price": "Liquidation Price",
+    "liquidation_price_tooltip": "If the price of ETH falls to the first level, a courtesy call can be initiated, if it falls to the second, the deposit can be liquidated.",
+    "btc_address": "BTC Address",
     "log$": {
       "unknown_event": "Unknown Event",
       "deposit_created": "Deposit created",

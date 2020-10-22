@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import {ApolloClient, ApolloProvider, HttpLink, InMemoryCache, split} from '@apollo/client';
-import {BrowserRouter as Router, Route, Switch,} from "react-router-dom";
+import {BrowserRouter as Router, Link, Route, Switch, useLocation,} from "react-router-dom";
 import {css} from 'emotion'
 import {Operators} from "./pages/Operators";
 import {Operator} from "./pages/Operator";
@@ -23,6 +23,10 @@ import {BeaconGroup} from "./pages/Group";
 import {useTranslation} from 'react-i18next';
 import { LangSwitcher } from './components/LangSwitcher';
 import './i18n';
+import {TimeTravelState, useTimeTravelBlock} from "./TimeTravel";
+import {DateTime, Duration} from "luxon";
+import {FormattedTime} from "./components/FormattedTime";
+
 
 function makeApolloLink(uri: string) {
   const httpLink = new HttpLink({
@@ -71,58 +75,60 @@ function AppInternal() {
   }, []);
 
   return (
-      <ApolloProvider client={client}>
-        <UseWalletProvider
-            chainId={isRopsten ? 3 : 1}
-        >
-          <Router>
-            <Header />
-            <Helmet titleTemplate="%s | AllTheKeeps">
-            </Helmet>
-            <div className={css`            
-            `}>
-              <Switch>
-                <Route path="/" exact>
-                  <Redirect to="/deposits" />
-                </Route>
-                <Route exact path="/deposits">
-                  <Deposits />
-                </Route>
-                <Route exact path="/deposits/:view">
-                  <Deposits />
-                </Route>
-                <Route path="/about" exact>
-                  <About />
-                </Route>
-                <Route path="/torch" exact>
-                  <ZksyncTorch />
-                </Route>
-                <Route path="/governance" exact>
-                  <Governance />
-                </Route>
-                <Route path="/operators" exact>
-                  <Operators />
-                </Route>
-                <Route path="/users" exact>
-                  <Users />
-                </Route>
-                <Route path="/beacon" exact>
-                  <Beacon />
-                </Route>
-                <Route path="/group/:id" exact>
-                  <BeaconGroup />
-                </Route>
-                <Route path="/operator/:operatorId" exact>
-                  <Operator />
-                </Route>
-                <Route path="/deposit/:depositId" exact>
-                  <Deposit />
-                </Route>
-              </Switch>
-            </div>
-          </Router>
-        </UseWalletProvider>
-      </ApolloProvider>
+      <Router>
+        <ApolloProvider client={client}>
+          <TimeTravelState>
+            <UseWalletProvider
+                chainId={isRopsten ? 3 : 1}
+            >
+              <Helmet titleTemplate="%s | AllTheKeeps"></Helmet>
+              <Header />
+              <TimeTravelWarning />
+              <div className={css`            
+              `}>
+                <Switch>
+                  <Route path="/" exact>
+                    <Redirect to="/deposits" />
+                  </Route>
+                  <Route exact path="/deposits">
+                    <Deposits />
+                  </Route>
+                  <Route exact path="/deposits/:view">
+                    <Deposits />
+                  </Route>
+                  <Route path="/about" exact>
+                    <About />
+                  </Route>
+                  <Route path="/torch" exact>
+                    <ZksyncTorch />
+                  </Route>
+                  <Route path="/governance" exact>
+                    <Governance />
+                  </Route>
+                  <Route path="/operators" exact>
+                    <Operators />
+                  </Route>
+                  <Route path="/users" exact>
+                    <Users />
+                  </Route>
+                  <Route path="/beacon" exact>
+                    <Beacon />
+                  </Route>
+                  <Route path="/group/:id" exact>
+                    <BeaconGroup />
+                  </Route>
+                  <Route path="/operator/:operatorId" exact>
+                    <Operator />
+                  </Route>
+                  <Route path="/deposit/:depositId" exact>
+                    <Deposit />
+                  </Route>
+                </Switch>
+              </div>
+            </UseWalletProvider>
+          </TimeTravelState>
+        </ApolloProvider>
+      </Router>
   );
 }
 
@@ -182,5 +188,39 @@ function Header() {
 
     <LangSwitcher />
 
+  </div>
+}
+
+
+// Estimating block time https://blocklytics.org/blog/ethereum-blocks-subgraph-made-for-time-travel/
+// NB: This does not really work at all, why?
+const anchor = 10867845;
+const anchorTime = 1600188773;
+function timeOfBlock(number: number) {
+  return DateTime.fromSeconds(anchorTime + ((number - anchor) * 14));
+}
+
+
+function TimeTravelWarning() {
+  const block = useTimeTravelBlock();
+
+  const location = useLocation();
+  const nonTimeTravelLink = useMemo(() => {
+    const query = new URLSearchParams(location.search);
+    if (query.has("block")) { query.delete("block"); }
+    return `${location.pathname}${query.toString()}`
+  }, [location.pathname, location.search]);
+
+  if (!block) {
+    return null;
+  }
+
+  return <div className={css`
+    padding: 8px;
+    font-size: 14px;
+    background-color: #fff9c4;
+  `}>
+    You are viewing the state at a block height of <strong>{block}</strong>.
+    {" "}<Link to={nonTimeTravelLink} style={{color: '#5519d3'}}>Exit Time Travel</Link>.
   </div>
 }
