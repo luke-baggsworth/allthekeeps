@@ -23,7 +23,7 @@ export function About() {
         {" "} <a href={"https://github.com/miracle2k/allthekeeps-graph"}>{t('about.code_description2')}</a>.
       </p>
       <p>
-        <a href={"https://github.com/miracle2k/keep-pricefeed"}>{t('about.code_description7')}</a> {t('about.code_description8')}
+        <a href={"https://github.com/miracle2k/keep-pricefeed"}>{t('about.code_description7')}</a> {t('about.code_description8')} 
         {t('about.code_description9')}
       </p>
       <p>
