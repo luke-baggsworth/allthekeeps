@@ -5,7 +5,7 @@ import {Helmet} from "react-helmet";
 import {TwitterTweetEmbed} from 'react-twitter-embed';
 import {TimeToNow} from "../components/FormattedTime";
 import {TorchMapping} from "../torchAccountMapping";
-
+import { useTranslation } from 'react-i18next';
 
 export function ZksyncTorch() {
   return <div className={css`
@@ -22,6 +22,7 @@ export function Content() {
   const [chain, setChain] = useState<any>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     setLoading(true);
@@ -35,8 +36,8 @@ export function Content() {
     })
   }, [])
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error :(</p>;
+  if (loading) return <p>{t('loading')}...</p>;
+  if (error) return <p>{t('error')} :(</p>;
 
   return <div className={css`
       display: flex;
