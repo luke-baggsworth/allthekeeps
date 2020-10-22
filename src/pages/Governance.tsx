@@ -12,21 +12,11 @@ import {FormattedTime, TimeToNow} from "../components/FormattedTime";
 import {ExplainerIcon} from "../components/ExplainerIcon";
 import {usePriceFeed} from "../components/PriceFeed";
 import {getWeiAsEth} from "../utils/getWeiAsEth";
+import {useQueryWithTimeTravel} from "../TimeTravel";
 
 const GOVERNANCE_QUERY = gql`
-    fragment Change on GovernanceChange {
-        type,
-        requestedAt,
-        takesEffectAfter,
-        
-        newLotSizes,
-        newFactorySelector,
-        newFullyBackedFactory,
-        newKeepStakedFactory,
-    }
-    
-    query GetGovernance {
-        governance(id: "GOVERNANCE") {
+    query GetGovernance($block: Block_height) {
+        governance(id: "GOVERNANCE", block: $block) {
             newDepositsAllowed
             
             lotSizes,
@@ -47,7 +37,7 @@ const GOVERNANCE_QUERY = gql`
             priceFeeds,
         },
         
-        governanceLogEntries(first: 300, orderBy: timestamp, orderDirection: desc) {
+        governanceLogEntries(first: 300, orderBy: timestamp, orderDirection: desc, block: $block) {
             id,
             timestamp,
             transactionHash,
@@ -57,6 +47,17 @@ const GOVERNANCE_QUERY = gql`
                 ...Change
             }
         }
+    }
+
+    fragment Change on GovernanceChange {
+        type,
+        requestedAt,
+        takesEffectAfter,
+
+        newLotSizes,
+        newFactorySelector,
+        newFullyBackedFactory,
+        newKeepStakedFactory,
     }
 `;
 
@@ -73,7 +74,7 @@ export function Governance() {
 
 
 export function Content() {
-  const { loading, error, data } = useQuery(GOVERNANCE_QUERY);
+  const { loading, error, data } = useQueryWithTimeTravel(GOVERNANCE_QUERY);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :( {""+ error}</p>;
@@ -175,7 +176,7 @@ function PriceInfo() {
   }
   else {
     content = <div>
-      <div>{price.val.toFixed(5)} ETH</div>
+      <div>{price.val.toFixed(5)} BTC</div>
       <div style={{
         marginTop: '0.5em',
         fontSize: '0.8em'
@@ -186,7 +187,7 @@ function PriceInfo() {
   }
 
   return <Paper padding>
-    <Block title={"Price Feed"} tooltip={"The price of a Bitcoin in ETH - affects collateralization ratios. Updates live."}>
+    <Block title={"ETH Price Feed"} tooltip={"The price of 1 Ether in BTC - affects collateralization ratios. Updates live."}>
       {content}
     </Block>
   </Paper>

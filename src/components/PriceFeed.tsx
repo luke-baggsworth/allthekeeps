@@ -33,12 +33,18 @@ const subscription = client.request({query});
 
 
 export type PriceData = {
-  val: number,
+  val: number,  // btcPerEth
+  satPerWei: number,
+  weiPerSat: number,
+
   timestamp: string,
   blockNumber: number,
   transactionHash: string
 }
 
+/**
+ * This is the price of 1 ETH in BTC.
+ */
 export function usePriceFeed() {
   const [data, setData] = useState<PriceData|null>(null);
   useEffect(() => {
@@ -46,10 +52,17 @@ export function usePriceFeed() {
       next ({data}) {
         if (data) {
           const price = data.price;
+
+          // Given with 18 decimal places
+          const btcPerEth = parseInt(price.val) / 10**18;
+          const satPerWei = btcPerEth * 100000000 * 0.000000000000000001;
+          const weiPerSat = 1 / satPerWei;
+
           setData({
               ...price,
-            // Given with 18 decimal places
-            val: parseInt(price.val) / 10**18
+            val: btcPerEth,
+            satPerWei,
+            weiPerSat
           });
         }
       }

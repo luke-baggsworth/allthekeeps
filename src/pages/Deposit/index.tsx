@@ -1,5 +1,5 @@
-import {gql, useQuery, useSubscription} from "@apollo/client";
-import React, {useState} from "react";
+import {gql, useSubscription} from "@apollo/client";
+import React from "react";
 import {useParams} from 'react-router';
 import {getSatoshisAsBitcoin} from "../../utils/getSatoshisAsBitcoin";
 import {TimeToNow} from "../../components/FormattedTime";
@@ -16,18 +16,22 @@ import {
 import {InfoTooltip} from "../../components/InfoTooltip";
 import {Helmet} from "react-helmet";
 import {getWeiAsEth} from "../../utils/getWeiAsEth";
-import {CollaterizationStatus} from "../../components/CollateralizationStatus";
+import {
+  CollaterizationStatusWithPrice, getPriceAtCollateralizationRatio,
+} from "../../components/CollateralizationStatus";
 import {Box} from "../../components/Box";
 import {Button} from "../../design-system/Button";
 import {Log} from "./log";
 import {useDAppDomain, useEtherscanDomain} from "../../NetworkContext";
 import {useBtcAddressFromPublicKey} from "../../utils/useBtcAddressFromPublicKey";
 import {StatusBox} from "./StatusBox";
+import {usePriceFeed} from "../../components/PriceFeed";
+import {useQueryWithTimeTravel, useTimeTravelBlock, useTimeTravelSafeSubscription} from "../../TimeTravel";
 
 
 const DEPOSIT_QUERY = gql`
-    query GetDeposit($id: ID!) {
-        deposit(id: $id) {
+    query GetDeposit($id: ID!, $block: Block_height) {
+        deposit(id: $id, block: $block) {
             id,
             contractAddress,
             currentState,
@@ -102,15 +106,24 @@ export function Deposit() {
 
 export function Content() {
   let { depositId } = useParams<any>();
-  const { loading, error, data } = useQuery(DEPOSIT_QUERY, {variables: {id: depositId}});
-  useSubscription(DEPOSIT_SUBSCRIPTION, { variables: { id: depositId } });
+
+  // Fix up deposit id
+  depositId = depositId.toLowerCase();
+  if (depositId.slice(0, 3) != 'dp-') {
+    depositId = 'dp-' + depositId;
+  }
+
+  const { loading, error, data } = useQueryWithTimeTravel(DEPOSIT_QUERY, {variables: {id: depositId, block: {number: 11058393}}});
+  useTimeTravelSafeSubscription(DEPOSIT_SUBSCRIPTION, { variables: { id: depositId }});
   const etherscan = useEtherscanDomain();
   const dAppDomain = useDAppDomain();
+  const price = usePriceFeed();
 
-  const btcAddress = useBtcAddressFromPublicKey(data?.deposit.bondedECDSAKeep.publicKey);
+  const btcAddress = useBtcAddressFromPublicKey(data?.deposit?.bondedECDSAKeep.publicKey);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :( {""+ error}</p>;
+  if (!data.deposit) return <p>Not found.</p>;
 
   const canBeRedeemed = ['ACTIVE', 'COURTESY_CALL'].indexOf(data.deposit.currentState) > -1;
   const isAtTerm = false;  // XXX still needs to be fixed
@@ -217,7 +230,18 @@ export function Content() {
                     key: 'depositContract',
                     label: "Deposit Contract",
                     value: <Address address={data.deposit.contractAddress}  />
-                  }
+                  },
+                  {
+                    key: 'keepContract',
+                    label: "Keep Contract",
+                    tooltip: "The Keep holds the original BTC in custody, and signers stake ETH as a security bond.",
+                    value: <Address address={data.deposit.keepAddress}  />
+                  },
+                  {
+                    key: 'status',
+                    label: "Keep Status",
+                    value: data.deposit.bondedECDSAKeep.status
+                  },
                 ]}
             />
           </Paper>
@@ -231,15 +255,15 @@ export function Content() {
             padding: 20px;
             padding-bottom: 0;
           `}>
-            Keep <InfoTooltip>
-              The Keep holds the original BTC in custody, and signers stake ETH as a security bond.
+            Collateral <InfoTooltip>
+              The  BTC is custodied by a group of randomly chosen signing nodes which stake ETH as a security bond.
             </InfoTooltip>
           </div>
           <PropertyTable data={[
             {
               key: 'signers',
               label: "Signers",
-              tooltip: "The node operators collectively holding the Bitcoin private key",
+              tooltip: "The node operators collectively holding the Bitcoin private key.",
               value: <div>
                 {data.deposit.bondedECDSAKeep.members.map((m: any) => {
                   return <div key={m.address}>
@@ -249,17 +273,31 @@ export function Content() {
               </div>
             },
             {
+              key: 'collateralization',
+              label: "Collaterialization",
+              tooltip: "If ETH loses value, the keep may become undercollaterized.",
+              value: <CollaterizationStatusWithPrice price={price} deposit={data.deposit} highlightNormal={true} style={{fontWeight: 'bold'}} />
+            },
+            {
+              key: 'courtesyCallPrice',
+              label: "Liquidation Price",
+              tooltip: "If the price of ETH falls to the first level, a courtesy call can be initiated, if it falls to the second, the deposit can be liquidated.",
+              value: <div>
+                {getPriceAtCollateralizationRatio(data.deposit, data.deposit.undercollateralizedThresholdPercent / 100).toFixed(5)} BTC / {" "}
+                {getPriceAtCollateralizationRatio(data.deposit, data.deposit.severelyUndercollateralizedThresholdPercent / 100).toFixed(5)} BTC
+              </div>
+            },
+            {
               key: 'bondedAmount',
               label: "Bond",
               tooltip: "The total value the signers have bonded to guarantee this deposit.",
               value: <span>{getWeiAsEth(data.deposit.bondedECDSAKeep.totalBondAmount).toFixed(2)} ETH</span>
             },
-            {
-              key: 'collateralization',
-              label: "Collaterialization",
-              tooltip: "If ETH loses value, the keep may become undercollaterized",
-              value: <CollaterizationStatus deposit={data.deposit} highlightNormal={true} style={{fontWeight: 'bold'}} />
-            },
+            btcAddress ? {
+              key: 'publicKey',
+              label: "BTC Address",
+              value: <BitcoinAddress address={btcAddress} />
+            } : undefined,
             {
               key: 'thresholds',
               label: "Thresholds",
@@ -274,28 +312,12 @@ export function Content() {
               tooltip: "How many signers must be honest for the bond not be lost.",
               value: <span>{formatter.format(data.deposit.bondedECDSAKeep.honestThreshold / data.deposit.bondedECDSAKeep.members.length)}</span>
             },
-            {
-              key: 'keepAddress',
-              label: "Contract Address",
-              tooltip: "The contract managing the keep",
-              value: <Address address={data.deposit.keepAddress} />
-            },
-            btcAddress ? {
-              key: 'publicKey',
-              label: "BTC Address",
-              value: <BitcoinAddress address={btcAddress} />
-            } : undefined,
-            {
-              key: 'status',
-              label: "Status",
-              value: data.deposit.bondedECDSAKeep.status
-            }
           ]} />
         </Paper>
       </div>
     </div>
 
-    <Paper>
+    <Paper style={{marginTop: '20px'}}>
       <div className={css`           
         padding: 20px;
       `}>
