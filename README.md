@@ -1,4 +1,4 @@
-[Russian description](README.ru-RU.md)
+[Russian description](README.ru-RU.md) 
 
 Our resource is a fork of the site [allthekeeps.com](allthekeeps.com) with one difference: a Liquidations section has been added for a more convenient orientation in deposits that have already been liquidated / are in the process of liquidation / may soon be liquidated. 
 
