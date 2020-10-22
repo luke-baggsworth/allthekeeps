@@ -5,12 +5,6 @@ See the contract:
 
 https://github.com/keep-network/keep-ecdsa/commit/97bd500c00e531873cc74d121e0a11b7e1dbb320
 
-Support Paging
---------------
-
-Now that we have > 1000 deposits, and that is the limit the graph will return, we will 
-need to support paging. We might also want to limit the table to 500 rows for performance.
-
 
 Search function
 ---------------
@@ -30,6 +24,7 @@ FRT Tokens
 It would be nice to show who owns the FRT token for each deposit (if it should ever someone else than the depositor),
 and in general layout more clearly who paid the fee to who in which case (the tbtc whitepaper contains a list of
 possible scenarios)
+
 
 Improved Staking Stats
 ----------------------
@@ -61,6 +56,12 @@ Time-Travel Mode
 
 The graph can query by block-height, so we could easily allow a view to browse the state of the network
 at a certain time in the past.
+
+The base for this exists, but it needs to be added to all screens, plus:
+
+- The ability to maintain the current block height while browsing.
+- A UI to select the current block and enter/exit time travel mode.
+- Disable things such as notify buttons / progress bars.
 
 
 More Liquidation Details

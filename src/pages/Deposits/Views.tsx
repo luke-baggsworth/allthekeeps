@@ -1,6 +1,7 @@
 import {DateTime} from "luxon";
 import {gql, useQuery} from "@apollo/client";
 import {NiceStateLabel} from "../../utils/depositStates";
+import {useQueryWithTimeTravel} from "../../TimeTravel";
 
 export type DepositViewID =
     ''
@@ -75,12 +76,14 @@ export const Views: {
 
 
 const DEPOSITS_QUERY = gql`
-    query GetDeposits($where: Deposit_filter, $orderBy: Deposit_orderBy) {
+    query GetDeposits($where: Deposit_filter, $orderBy: Deposit_orderBy, $skip: Int, $block: Block_height) {
         deposits(
-            first: 1000,
+            first: 500,
+            skip: $skip,
             orderBy: $orderBy,
             orderDirection: desc
-            where: $where
+            where: $where,
+            block: $block
         ) {
             id,
             contractAddress,
@@ -119,11 +122,11 @@ const DEPOSITS_QUERY = gql`
     ${NiceStateLabel}
 `;
 
-export function useDepositQuery(view: DepositViewID) {
+export function useDepositQuery(view: DepositViewID, pageNumber?: number) {
   const where = ({
     "": {},
     active: {'filter_activeLikeState': true},
-    liquidations: {'filter_liquidationLikeState': true},
+    liquidations: {'filter_liquidationLikeOrSignerFailureState': true},
     redeemable: {'filter_redeemableAsOf_gt': Math.round(DateTime.utc().toMillis() / 1000)},
     unminted: {'filter_unmintedTDT': true},
     notifiable: {'currentStateTimesOutAt_lt': Math.round(DateTime.utc().toMillis() / 1000)},
@@ -136,10 +139,13 @@ export function useDepositQuery(view: DepositViewID) {
     redemptions: "redemptionStartedAt",
   } as {[key in DepositViewID]: string})[view || ''] || "updatedAt";
 
-  const {loading, error, data} = useQuery(DEPOSITS_QUERY, {
+  const perPage = 500;
+
+  const {loading, error, data} = useQueryWithTimeTravel(DEPOSITS_QUERY, {
     variables: {
       where: where,
-      orderBy: dateColumn
+      orderBy: dateColumn,
+      skip: perPage * ((pageNumber ?? 1) - 1)
     }
   });
 
