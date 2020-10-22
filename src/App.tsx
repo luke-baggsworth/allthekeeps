@@ -21,6 +21,7 @@ import {Users} from "./pages/Users";
 import {Beacon} from "./pages/Beacon";
 import {BeaconGroup} from "./pages/Group";
 import {useTranslation} from 'react-i18next';
+import { LangSwitcher } from './components/LangSwitcher';
 import './i18n';
 
 function makeApolloLink(uri: string) {
@@ -178,6 +179,8 @@ function Header() {
     <NavigationButton to={"/about"}>
       {t('header.about')}
     </NavigationButton>
+
+    <LangSwitcher />
 
   </div>
 }
